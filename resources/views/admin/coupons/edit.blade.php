@@ -40,10 +40,28 @@
                 @enderror
             </div>
 
+            <!-- Discount Type -->
+            <div>
+                <label for="discount_type" class="block text-sm font-medium text-gray-700 mb-2">
+                    نوع الخصم <span class="text-red-500">*</span>
+                </label>
+                <select id="discount_type" 
+                        name="discount_type" 
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 @error('discount_type') border-red-500 @enderror"
+                        required>
+                    <option value="percentage" {{ old('discount_type', $coupon->discount_type ?? 'percentage') === 'percentage' ? 'selected' : '' }}>نسبة مئوية (%)</option>
+                    <option value="fixed" {{ old('discount_type', $coupon->discount_type) === 'fixed' ? 'selected' : '' }}>مبلغ ثابت (ريال)</option>
+                </select>
+                @error('discount_type')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+                <p class="mt-1 text-sm text-gray-500">اختر نوع الخصم: نسبة مئوية أو مبلغ ثابت</p>
+            </div>
+
             <!-- Discount -->
             <div>
                 <label for="discount" class="block text-sm font-medium text-gray-700 mb-2">
-                    نسبة الخصم (%) <span class="text-red-500">*</span>
+                    <span id="discount_label">نسبة الخصم (%)</span> <span class="text-red-500">*</span>
                 </label>
                 <input type="number" 
                        id="discount" 
@@ -58,6 +76,7 @@
                 @error('discount')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                 @enderror
+                <p class="mt-1 text-sm text-gray-500" id="discount_hint">من 0 إلى 100</p>
             </div>
 
             <!-- Expires At -->
@@ -156,6 +175,42 @@
         </div>
     </form>
 </div>
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const discountType = document.getElementById('discount_type');
+    const discountInput = document.getElementById('discount');
+    const discountLabel = document.getElementById('discount_label');
+    const discountHint = document.getElementById('discount_hint');
+
+    function updateDiscountField() {
+        const type = discountType.value;
+        
+        if (type === 'percentage') {
+            discountLabel.textContent = 'نسبة الخصم (%)';
+            discountInput.placeholder = '10';
+            discountInput.max = '100';
+            discountInput.min = '0';
+            discountInput.step = '0.01';
+            discountHint.textContent = 'من 0 إلى 100';
+        } else {
+            discountLabel.textContent = 'مبلغ الخصم (ريال)';
+            discountInput.placeholder = '50';
+            discountInput.removeAttribute('max');
+            discountInput.min = '0';
+            discountInput.step = '0.01';
+            discountHint.textContent = 'أدخل المبلغ بالريال (مثل: 50 لخمسين ريال)';
+        }
+    }
+
+    discountType.addEventListener('change', updateDiscountField);
+    
+    // تحديث الحقل عند تحميل الصفحة
+    updateDiscountField();
+});
+</script>
+@endpush
 
 @endsection
 

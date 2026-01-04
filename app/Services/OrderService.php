@@ -51,16 +51,18 @@ class OrderService
 
             if ($couponCode) {
                 try {
-                    $couponResult = $this->couponService->applyCoupon($couponCode, $subtotal);
+                    $couponResult = $this->couponService->applyCoupon($couponCode, $subtotal, $userId);
                     $couponId = $couponResult['coupon']->id;
                     $discountAmount = $couponResult['discount_amount'];
                     $totalAmount = $couponResult['final_amount'];
                 } catch (\Exception $e) {
-                    // إذا فشل تطبيق الكوبون، نستمر بدون كوبون
+                    // إذا فشل تطبيق الكوبون، نرمي الاستثناء
                     Log::warning('Failed to apply coupon', [
                         'coupon_code' => $couponCode,
+                        'user_id' => $userId,
                         'error' => $e->getMessage(),
                     ]);
+                    throw $e;
                 }
             }
 
@@ -113,7 +115,7 @@ class OrderService
             if ($couponId) {
                 $coupon = \App\Models\Coupon::find($couponId);
                 if ($coupon) {
-                    $this->couponService->recordUsage($coupon);
+                    $this->couponService->recordUsage($coupon, $userId, $order->id);
                 }
             }
 
@@ -190,16 +192,18 @@ class OrderService
 
             if ($couponCode) {
                 try {
-                    $couponResult = $this->couponService->applyCoupon($couponCode, $subtotal);
+                    $couponResult = $this->couponService->applyCoupon($couponCode, $subtotal, $userId);
                     $couponId = $couponResult['coupon']->id;
                     $discountAmount = $couponResult['discount_amount'];
                     $totalAmount = $couponResult['final_amount'];
                 } catch (\Exception $e) {
-                    // إذا فشل تطبيق الكوبون، نستمر بدون كوبون
+                    // إذا فشل تطبيق الكوبون، نرمي الاستثناء
                     Log::warning('Failed to apply coupon', [
                         'coupon_code' => $couponCode,
+                        'user_id' => $userId,
                         'error' => $e->getMessage(),
                     ]);
+                    throw $e;
                 }
             }
 
@@ -242,7 +246,7 @@ class OrderService
             if ($couponId) {
                 $coupon = \App\Models\Coupon::find($couponId);
                 if ($coupon) {
-                    $this->couponService->recordUsage($coupon);
+                    $this->couponService->recordUsage($coupon, $userId, $order->id);
                 }
             }
 

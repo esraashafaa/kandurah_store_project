@@ -11,6 +11,7 @@ use App\Http\Controllers\API\DesignOptionController;
 use App\Http\Controllers\Api\Admin\AdminOrderController;
 use App\Http\Controllers\API\WalletController;
 use App\Http\Controllers\API\PaymentController;
+use App\Http\Controllers\API\CouponController;
 
 Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
@@ -151,5 +152,12 @@ Route::middleware('auth:sanctum')->group(function () {
     // -----------------------------------------------------------------
     Route::prefix('orders')->name('orders.')->group(function () {
         Route::post('/{order}/pay', [PaymentController::class, 'payOrder'])->name('pay');
+    });
+    
+    // -----------------------------------------------------------------
+    // Coupon Routes (الكوبونات)
+    // -----------------------------------------------------------------
+    Route::prefix('coupons')->name('coupons.')->group(function () {
+        Route::post('/validate', [CouponController::class, 'validate'])->name('validate');
     });
 });

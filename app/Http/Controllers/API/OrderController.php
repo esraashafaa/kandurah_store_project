@@ -55,6 +55,7 @@ class OrderController extends Controller
             $userId = $request->user()->id;
             $locationId = $request->input('location_id');
             $notes = $request->input('notes');
+            $couponCode = $request->input('coupon_code');
 
             // إذا تم إرسال items مباشرة، استخدم createOrderFromItems
             if ($request->has('items') && !empty($request->input('items'))) {
@@ -62,7 +63,8 @@ class OrderController extends Controller
                     userId: $userId,
                     locationId: $locationId,
                     items: $request->input('items'),
-                    notes: $notes
+                    notes: $notes,
+                    couponCode: $couponCode
                 );
 
                 return response()->json([
@@ -86,7 +88,8 @@ class OrderController extends Controller
                 userId: $userId,
                 locationId: $locationId,
                 cartItems: $cartItems,
-                notes: $notes
+                notes: $notes,
+                couponCode: $couponCode
             );
 
             // تفريغ السلة

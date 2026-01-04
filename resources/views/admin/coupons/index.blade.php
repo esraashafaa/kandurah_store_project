@@ -100,8 +100,20 @@
             
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-3xl font-bold {{ $coupon->is_active ? 'text-green-600' : 'text-gray-600' }}">{{ $coupon->discount }}%</p>
-                    <p class="text-sm text-gray-600">نسبة الخصم</p>
+                    <p class="text-3xl font-bold {{ $coupon->is_active ? 'text-green-600' : 'text-gray-600' }}">
+                        @if(($coupon->discount_type ?? 'percentage') === 'fixed')
+                            {{ number_format($coupon->discount, 2) }} ريال
+                        @else
+                            {{ number_format($coupon->discount, 2) }}%
+                        @endif
+                    </p>
+                    <p class="text-sm text-gray-600">
+                        @if(($coupon->discount_type ?? 'percentage') === 'fixed')
+                            مبلغ الخصم
+                        @else
+                            نسبة الخصم
+                        @endif
+                    </p>
                 </div>
                 <div class="text-left">
                     <p class="text-2xl font-bold text-gray-900">{{ $coupon->usage_count ?? 0 }}</p>

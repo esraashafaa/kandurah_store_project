@@ -39,7 +39,8 @@ class CouponController extends Controller
     {
         $validated = $request->validate([
             'code' => 'required|string|max:50|unique:coupons,code',
-            'discount' => 'required|numeric|min:0|max:100',
+            'discount_type' => 'required|in:percentage,fixed',
+            'discount' => 'required|numeric|min:0',
             'expires_at' => 'nullable|date|after:today',
             'is_active' => 'boolean',
             'max_usage' => 'nullable|integer|min:1',
@@ -48,11 +49,19 @@ class CouponController extends Controller
         ], [
             'code.required' => 'كود الكوبون مطلوب',
             'code.unique' => 'هذا الكود مستخدم بالفعل',
-            'discount.required' => 'نسبة الخصم مطلوبة',
-            'discount.min' => 'نسبة الخصم يجب أن تكون أكبر من أو تساوي 0',
-            'discount.max' => 'نسبة الخصم يجب أن تكون أقل من أو تساوي 100',
+            'discount_type.required' => 'نوع الخصم مطلوب',
+            'discount_type.in' => 'نوع الخصم يجب أن يكون نسبة مئوية أو مبلغ ثابت',
+            'discount.required' => 'قيمة الخصم مطلوبة',
+            'discount.min' => 'قيمة الخصم يجب أن تكون أكبر من أو تساوي 0',
             'expires_at.after' => 'تاريخ الانتهاء يجب أن يكون في المستقبل',
         ]);
+
+        // التحقق من أن نسبة الخصم لا تتجاوز 100% إذا كان النوع percentage
+        if ($validated['discount_type'] === 'percentage' && $validated['discount'] > 100) {
+            return back()
+                ->withInput()
+                ->withErrors(['discount' => 'نسبة الخصم يجب أن تكون أقل من أو تساوي 100%']);
+        }
 
         $validated['is_active'] = $request->has('is_active');
 
@@ -93,7 +102,8 @@ class CouponController extends Controller
     {
         $validated = $request->validate([
             'code' => 'required|string|max:50|unique:coupons,code,' . $coupon->id,
-            'discount' => 'required|numeric|min:0|max:100',
+            'discount_type' => 'required|in:percentage,fixed',
+            'discount' => 'required|numeric|min:0',
             'expires_at' => 'nullable|date',
             'is_active' => 'boolean',
             'max_usage' => 'nullable|integer|min:1',
@@ -102,10 +112,18 @@ class CouponController extends Controller
         ], [
             'code.required' => 'كود الكوبون مطلوب',
             'code.unique' => 'هذا الكود مستخدم بالفعل',
-            'discount.required' => 'نسبة الخصم مطلوبة',
-            'discount.min' => 'نسبة الخصم يجب أن تكون أكبر من أو تساوي 0',
-            'discount.max' => 'نسبة الخصم يجب أن تكون أقل من أو تساوي 100',
+            'discount_type.required' => 'نوع الخصم مطلوب',
+            'discount_type.in' => 'نوع الخصم يجب أن يكون نسبة مئوية أو مبلغ ثابت',
+            'discount.required' => 'قيمة الخصم مطلوبة',
+            'discount.min' => 'قيمة الخصم يجب أن تكون أكبر من أو تساوي 0',
         ]);
+
+        // التحقق من أن نسبة الخصم لا تتجاوز 100% إذا كان النوع percentage
+        if ($validated['discount_type'] === 'percentage' && $validated['discount'] > 100) {
+            return back()
+                ->withInput()
+                ->withErrors(['discount' => 'نسبة الخصم يجب أن تكون أقل من أو تساوي 100%']);
+        }
 
         $validated['is_active'] = $request->has('is_active');
 

@@ -108,6 +108,17 @@ public function transactions()
 }
 
 /**
+ * العلاقة مع الكوبونات المستخدمة
+ */
+public function usedCoupons()
+{
+    return $this->belongsToMany(Coupon::class, 'coupon_user')
+                ->withPivot('order_id', 'used_at')
+                ->withTimestamps()
+                ->using(\App\Models\CouponUser::class);
+}
+
+/**
  * Add funds to user's wallet
  */
 public function addFunds(float $amount, ?string $description = null): Transaction

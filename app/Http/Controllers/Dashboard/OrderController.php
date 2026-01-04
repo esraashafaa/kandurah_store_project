@@ -78,6 +78,7 @@ class OrderController extends Controller
             'items.*.design_option_ids' => 'nullable|array',
             'items.*.design_option_ids.*' => 'exists:design_options,id',
             'notes' => 'nullable|string|max:1000',
+            'coupon_code' => 'nullable|string|max:50',
         ]);
 
         try {
@@ -85,7 +86,8 @@ class OrderController extends Controller
                 userId: $validated['user_id'],
                 locationId: $validated['location_id'],
                 items: $validated['items'],
-                notes: $validated['notes'] ?? null
+                notes: $validated['notes'] ?? null,
+                couponCode: $validated['coupon_code'] ?? null
             );
 
             return redirect()

@@ -15,10 +15,11 @@ class CouponService
      * 
      * @param string $code
      * @param float|null $amount المبلغ المطلوب التحقق منه
+     * @param int|null $userId معرف المستخدم (للتحقق من استخدامه للكوبون من قبل)
      * @return Coupon|null
      * @throws \Exception
      */
-    public function validateCoupon(string $code, ?float $amount = null): ?Coupon
+    public function validateCoupon(string $code, ?float $amount = null, ?int $userId = null): ?Coupon
     {
         // استخدام lockForUpdate لمنع race condition عند استخدام نفس الكوبون في نفس الوقت
         // يجب استدعاء هذه الدالة داخل transaction
@@ -41,6 +42,11 @@ class CouponService
             throw new \Exception('تم الوصول إلى الحد الأقصى لاستخدام هذا الكوبون');
         }
 
+        // التحقق من أن المستخدم لم يستخدم الكوبون من قبل
+        if ($userId !== null && $coupon->hasBeenUsedByUser($userId)) {
+            throw new \Exception('لقد استخدمت هذا الكوبون من قبل. يمكنك استخدام كل كوبون مرة واحدة فقط');
+        }
+
         // التحقق من الحد الأدنى للشراء
         if ($amount !== null && $coupon->min_purchase && $amount < $coupon->min_purchase) {
             throw new \Exception('الحد الأدنى للشراء لاستخدام هذا الكوبون هو ' . number_format($coupon->min_purchase, 2) . ' ريال');
@@ -54,12 +60,13 @@ class CouponService
      * 
      * @param string $code
      * @param float $amount
+     * @param int|null $userId معرف المستخدم (للتحقق من استخدامه للكوبون من قبل)
      * @return array ['coupon' => Coupon, 'discount_amount' => float, 'final_amount' => float]
      * @throws \Exception
      */
-    public function applyCoupon(string $code, float $amount): array
+    public function applyCoupon(string $code, float $amount, ?int $userId = null): array
     {
-        $coupon = $this->validateCoupon($code, $amount);
+        $coupon = $this->validateCoupon($code, $amount, $userId);
         
         $discountAmount = $coupon->calculateDiscount($amount);
         
@@ -76,7 +83,7 @@ class CouponService
         }
 
         return [
-            'coupon' => $coupon,
+            'coupon' => $coupon, 
             'discount_amount' => $discountAmount,
             'final_amount' => $finalAmount,
             'subtotal' => $amount,
@@ -87,17 +94,29 @@ class CouponService
      * تسجيل استخدام الكوبون في طلب
      * 
      * @param Coupon $coupon
+     * @param int $userId معرف المستخدم
+     * @param int|null $orderId معرف الطلب (اختياري)
      * @return void
      */
-    public function recordUsage(Coupon $coupon): void
+    public function recordUsage(Coupon $coupon, int $userId, ?int $orderId = null): void
     {
         // يتم استدعاء هذه الدالة عادة داخل transaction أكبر (مثل عند إنشاء الطلب)
         // لذا لا نحتاج transaction هنا لتجنب nested transactions
+        
+        // تسجيل استخدام المستخدم للكوبون
+        $coupon->users()->attach($userId, [
+            'order_id' => $orderId,
+            'used_at' => now(),
+        ]);
+        
+        // زيادة عدد مرات الاستخدام العامة
         $coupon->incrementUsage();
         
         Log::info('Coupon usage recorded', [
             'coupon_id' => $coupon->id,
             'coupon_code' => $coupon->code,
+            'user_id' => $userId,
+            'order_id' => $orderId,
             'usage_count' => $coupon->fresh()->usage_count,
         ]);
     }

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Builder;
 
 class Coupon extends Model
@@ -14,6 +15,7 @@ class Coupon extends Model
     protected $fillable = [
         'code',
         'discount',
+        'discount_type',
         'expires_at',
         'is_active',
         'max_usage',
@@ -24,6 +26,7 @@ class Coupon extends Model
 
     protected $casts = [
         'discount' => 'decimal:2',
+        'discount_type' => 'string',
         'expires_at' => 'date',
         'is_active' => 'boolean',
         'max_usage' => 'integer',
@@ -39,6 +42,16 @@ class Coupon extends Model
     public function orders(): HasMany
     {
         return $this->hasMany(Order::class);
+    }
+
+    /**
+     * العلاقة مع المستخدمين الذين استخدموا الكوبون
+     */
+    public function users(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'coupon_user')
+                    ->withPivot('order_id', 'used_at')
+                    ->using(\App\Models\CouponUser::class);
     }
 
     /**
@@ -109,7 +122,20 @@ class Coupon extends Model
             return 0;
         }
 
-        return ($amount * $this->discount) / 100;
+        // إذا كان الخصم نسبة مئوية (أو لم يتم تحديد النوع - للتوافق مع الكوبونات القديمة)
+        if (!$this->discount_type || $this->discount_type === 'percentage') {
+            return ($amount * $this->discount) / 100;
+        }
+        
+        // إذا كان الخصم مبلغ ثابت
+        // التأكد من أن مبلغ الخصم لا يتجاوز المبلغ الأصلي
+        return min($this->discount, $amount);
+    }
+
+    // التحقق من أن المستخدم لم يستخدم الكوبون من قبل
+    public function hasBeenUsedByUser(int $userId): bool
+    {
+        return $this->users()->where('user_id', $userId)->exists();
     }
 
     // زيادة عدد مرات الاستخدام

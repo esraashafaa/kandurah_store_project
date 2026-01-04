@@ -27,6 +27,7 @@ class StoreOrderRequest extends FormRequest
                 },
             ],
             'notes' => 'nullable|string|max:1000',
+            'coupon_code' => 'nullable|string|max:50',
             
             // دعم إنشاء الطلب مباشرة من items (بدون cart)
             'items' => 'sometimes|array|min:1',

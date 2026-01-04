@@ -288,20 +288,14 @@ Route::prefix('admin')
     
     // إدارة الكوبونات
     Route::prefix('coupons')->name('coupons.')->group(function () {
-        Route::get('/', function () {
-            $coupons = collect([]); // Add your Coupon model when ready
-            $stats = [
-                'total' => 0,
-                'active' => 0,
-                'expired' => 0,
-                'used' => 0,
-            ];
-            return view('admin.coupons.index', compact('coupons', 'stats'));
-        })->name('index');
-        
-        Route::get('/create', function () {
-            return redirect()->route('admin.coupons.index');
-        })->name('create');
+        Route::get('/', [\App\Http\Controllers\Admin\CouponController::class, 'index'])->name('index');
+        Route::get('/create', [\App\Http\Controllers\Admin\CouponController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\Admin\CouponController::class, 'store'])->name('store');
+        Route::get('/{coupon}', [\App\Http\Controllers\Admin\CouponController::class, 'show'])->name('show');
+        Route::get('/{coupon}/edit', [\App\Http\Controllers\Admin\CouponController::class, 'edit'])->name('edit');
+        Route::put('/{coupon}', [\App\Http\Controllers\Admin\CouponController::class, 'update'])->name('update');
+        Route::delete('/{coupon}', [\App\Http\Controllers\Admin\CouponController::class, 'destroy'])->name('destroy');
+        Route::post('/{coupon}/toggle', [\App\Http\Controllers\Admin\CouponController::class, 'toggle'])->name('toggle');
     });
     
     // إدارة التقييمات
