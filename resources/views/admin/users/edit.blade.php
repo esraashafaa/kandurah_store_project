@@ -287,6 +287,77 @@
                 </div>
             </div>
 
+            <!-- Permissions Management (Only for Super Admin and when role is admin/super_admin) -->
+            @if(auth()->user()->role === \App\Enums\RoleEnum::SUPER_ADMIN)
+            <div class="bg-white rounded-xl shadow-sm p-6" id="permissions-section" style="display: {{ in_array($user->role->value, ['admin', 'super_admin']) ? 'block' : 'none' }};">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">إدارة الصلاحيات</h2>
+                
+                <!-- Permission Groups -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-3">
+                        مجموعات الصلاحيات
+                    </label>
+                    <div class="space-y-2 max-h-48 overflow-y-auto border border-gray-200 rounded-lg p-3">
+                        @forelse($permissionGroups ?? [] as $group)
+                        <label class="flex items-start p-3 rounded-lg hover:bg-gray-50 cursor-pointer border border-gray-200 group-checkbox" data-group-id="{{ $group->id }}">
+                            <input type="checkbox" 
+                                   name="permission_groups[]" 
+                                   value="{{ $group->id }}"
+                                   {{ in_array($group->id, $userGroups ?? []) ? 'checked' : '' }}
+                                   class="mt-1 w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 group-checkbox-input"
+                                   data-permissions="{{ $group->permissions->pluck('id')->toJson() }}">
+                            <div class="mr-3 flex-1">
+                                <p class="text-sm font-semibold text-gray-900">{{ $group->getName('ar') }}</p>
+                                <p class="text-xs text-gray-500">{{ $group->permissions->count() }} صلاحية</p>
+                            </div>
+                        </label>
+                        @empty
+                        <p class="text-sm text-gray-500 text-center py-4">لا توجد مجموعات صلاحيات متاحة</p>
+                        @endforelse
+                    </div>
+                    <a href="{{ route('admin.permission-groups.index') }}" target="_blank" class="text-xs text-indigo-600 hover:text-indigo-800 mt-2 inline-block">
+                        <i class="fas fa-external-link-alt ml-1"></i>
+                        إدارة مجموعات الصلاحيات
+                    </a>
+                </div>
+
+                <!-- Individual Permissions -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-3">
+                        الصلاحيات الفردية
+                    </label>
+                    <div class="space-y-4 max-h-96 overflow-y-auto">
+                        @foreach($permissions ?? [] as $category => $categoryPermissions)
+                        <div class="border border-gray-200 rounded-lg p-3">
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="text-sm font-semibold text-gray-800 capitalize">{{ $category }}</h4>
+                                <button type="button" 
+                                        onclick="toggleCategoryPermissions('{{ $category }}')" 
+                                        class="text-xs text-indigo-600 hover:text-indigo-800">
+                                    <i class="fas fa-check-double ml-1"></i>
+                                    تحديد الكل
+                                </button>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-2" id="permissions-category-{{ $category }}">
+                                @foreach($categoryPermissions as $permission)
+                                <label class="flex items-center p-2 rounded hover:bg-gray-50 cursor-pointer">
+                                    <input type="checkbox" 
+                                           name="permissions[]" 
+                                           value="{{ $permission->id }}"
+                                           {{ in_array($permission->id, $userPermissions ?? []) ? 'checked' : '' }}
+                                           class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 permission-checkbox"
+                                           data-category="{{ $category }}">
+                                    <span class="mr-2 text-xs text-gray-700">{{ $permission->name }}</span>
+                                </label>
+                                @endforeach
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+            @endif
+
             <!-- Wallet Balance -->
             <div class="bg-white rounded-xl shadow-sm p-6">
                 <h2 class="text-xl font-bold text-gray-800 mb-4">رصيد المحفظة</h2>
@@ -365,6 +436,75 @@ function togglePassword(fieldId) {
         icon.classList.remove('fa-eye-slash');
         icon.classList.add('fa-eye');
     }
+}
+
+// إدارة قسم الصلاحيات
+document.addEventListener('DOMContentLoaded', function() {
+    const roleSelect = document.getElementById('role');
+    const permissionsSection = document.getElementById('permissions-section');
+    
+    if (roleSelect && permissionsSection) {
+        // عرض/إخفاء قسم الصلاحيات حسب الدور
+        function togglePermissionsSection() {
+            const selectedRole = roleSelect.value;
+            if (selectedRole === 'admin' || selectedRole === 'super_admin') {
+                permissionsSection.style.display = 'block';
+            } else {
+                permissionsSection.style.display = 'none';
+            }
+        }
+        
+        roleSelect.addEventListener('change', togglePermissionsSection);
+        
+        // إدارة مجموعات الصلاحيات
+        const groupCheckboxes = document.querySelectorAll('.group-checkbox-input');
+        groupCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const permissions = JSON.parse(this.dataset.permissions);
+                const permissionCheckboxes = document.querySelectorAll('input[name="permissions[]"]');
+                
+                if (this.checked) {
+                    // تحديد جميع صلاحيات المجموعة
+                    permissions.forEach(permId => {
+                        const permCheckbox = document.querySelector(`input[name="permissions[]"][value="${permId}"]`);
+                        if (permCheckbox) {
+                            permCheckbox.checked = true;
+                        }
+                    });
+                } else {
+                    // إلغاء تحديد صلاحيات المجموعة (فقط إذا لم تكن مختارة من مجموعة أخرى)
+                    permissions.forEach(permId => {
+                        const permCheckbox = document.querySelector(`input[name="permissions[]"][value="${permId}"]`);
+                        if (permCheckbox) {
+                            // التحقق من أن الصلاحية ليست في مجموعة أخرى مختارة
+                            let isInOtherGroup = false;
+                            groupCheckboxes.forEach(otherGroup => {
+                                if (otherGroup !== this && otherGroup.checked) {
+                                    const otherPermissions = JSON.parse(otherGroup.dataset.permissions);
+                                    if (otherPermissions.includes(permId)) {
+                                        isInOtherGroup = true;
+                                    }
+                                }
+                            });
+                            
+                            if (!isInOtherGroup) {
+                                permCheckbox.checked = false;
+                            }
+                        }
+                    });
+                }
+            });
+        });
+    }
+});
+
+function toggleCategoryPermissions(category) {
+    const checkboxes = document.querySelectorAll(`#permissions-category-${category} .permission-checkbox`);
+    const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+    
+    checkboxes.forEach(cb => {
+        cb.checked = !allChecked;
+    });
 }
 </script>
 @endpush

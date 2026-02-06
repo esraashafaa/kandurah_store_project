@@ -68,6 +68,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('locations', LocationController::class);
 
     // -----------------------------------------------------------------
+    // Measurements Routes (المقاسات)
+    // -----------------------------------------------------------------
+    Route::apiResource('measurements', \App\Http\Controllers\API\MeasurementController::class);
+
+    // -----------------------------------------------------------------
     // Design Options Routes (خيارات التصميم)
     // العرض: للجميع | الإنشاء/التعديل/الحذف: للأدمن فقط
     // -----------------------------------------------------------------
@@ -159,5 +164,33 @@ Route::middleware('auth:sanctum')->group(function () {
     // -----------------------------------------------------------------
     Route::prefix('coupons')->name('coupons.')->group(function () {
         Route::post('/validate', [CouponController::class, 'validate'])->name('validate');
+    });
+    
+    // -----------------------------------------------------------------
+    // FCM Token Routes (حفظ FCM Token للإشعارات)
+    // -----------------------------------------------------------------
+    Route::prefix('fcm')->name('fcm.')->group(function () {
+        Route::post('/token', [\App\Http\Controllers\API\FCMController::class, 'store'])->name('store');
+        Route::delete('/token', [\App\Http\Controllers\API\FCMController::class, 'destroy'])->name('destroy');
+    });
+    
+    // -----------------------------------------------------------------
+    // Review Routes (التقييمات)
+    // -----------------------------------------------------------------
+    Route::prefix('reviews')->name('reviews.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\ReviewController::class, 'index'])->name('index');
+        Route::post('/orders/{order}', [\App\Http\Controllers\ReviewController::class, 'store'])->name('store');
+        Route::get('/{review}', [\App\Http\Controllers\ReviewController::class, 'show'])->name('show');
+        Route::put('/{review}', [\App\Http\Controllers\ReviewController::class, 'update'])->name('update');
+        Route::delete('/{review}', [\App\Http\Controllers\ReviewController::class, 'destroy'])->name('destroy');
+    });
+    
+    // -----------------------------------------------------------------
+    // Invoice Routes (الفواتير)
+    // -----------------------------------------------------------------
+    Route::prefix('invoices')->name('invoices.')->group(function () {
+        Route::get('/orders/{order}', [\App\Http\Controllers\InvoiceController::class, 'show'])->name('show');
+        Route::get('/orders/{order}/download', [\App\Http\Controllers\InvoiceController::class, 'download'])->name('download');
+        Route::get('/orders/{order}/view', [\App\Http\Controllers\InvoiceController::class, 'view'])->name('view');
     });
 });

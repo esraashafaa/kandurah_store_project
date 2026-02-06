@@ -41,15 +41,63 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
-            RateLimiter::hit($this->throttleKey());
+        $credentials = $this->only('email', 'password');
+        $remember = $this->boolean('remember');
 
-            throw ValidationException::withMessages([
-                'email' => trans('auth.failed'),
-            ]);
+        // محاولة تسجيل الدخول كـ User (استخدام guard الجلسة وليس api)
+        if (Auth::guard('web')->attempt($credentials, $remember)) {
+            $user = Auth::guard('web')->user();
+            
+            // التحقق من أن الحساب نشط
+            if (!$user->is_active) {
+                Auth::guard('web')->logout();
+                RateLimiter::hit($this->throttleKey());
+                throw ValidationException::withMessages([
+                    'email' => ['حسابك غير مفعل'],
+                ]);
+            }
+
+            // تحديث آخر وقت تسجيل دخول
+            if (method_exists($user, 'updateLastLogin')) {
+                $user->updateLastLogin();
+            }
+
+            RateLimiter::clear($this->throttleKey());
+            return;
         }
 
-        RateLimiter::clear($this->throttleKey());
+        // محاولة تسجيل الدخول كـ Admin
+        $admin = \App\Models\Admin::where('email', $credentials['email'])->first();
+        
+        if ($admin && \Illuminate\Support\Facades\Hash::check($credentials['password'], $admin->password)) {
+            // التحقق من أن الحساب نشط
+            if (!$admin->is_active) {
+                RateLimiter::hit($this->throttleKey());
+                throw ValidationException::withMessages([
+                    'email' => ['حسابك غير مفعل'],
+                ]);
+            }
+
+            // تسجيل دخول Admin باستخدام guard الخاص بهم
+            Auth::guard('admin')->login($admin, $remember);
+            
+            // حفظ Admin ID في session لاستخدامه في views
+            $this->session()->put('admin_id', $admin->id);
+            $this->session()->put('admin_guard', 'admin');
+            
+            // تحديث آخر وقت تسجيل دخول
+            $admin->updateLastLogin();
+
+            RateLimiter::clear($this->throttleKey());
+            return;
+        }
+
+        // فشل تسجيل الدخول
+        RateLimiter::hit($this->throttleKey());
+
+        throw ValidationException::withMessages([
+            'email' => trans('auth.failed'),
+        ]);
     }
 
     /**

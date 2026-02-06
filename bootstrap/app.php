@@ -20,6 +20,11 @@ return Application::configure(basePath: dirname(__DIR__))
             'api/*',
         ]);
 
+        // تسجيل Middleware للغة
+        $middleware->web(append: [
+            \App\Http\Middleware\SetLocale::class,
+        ]);
+
         // تسجيل Admin Middleware
         $middleware->alias([
             'admin' => \App\Http\Middleware\AdminMiddleware::class,

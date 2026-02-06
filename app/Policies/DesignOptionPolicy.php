@@ -2,7 +2,7 @@
 
 namespace App\Policies;
 
-use App\Enums\RoleEnum;
+use App\Models\Admin;
 use App\Models\DesignOption;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
@@ -12,9 +12,9 @@ class DesignOptionPolicy
     /**
      * قبل كل الفحوصات - الأدمن له صلاحية كاملة
      */
-    public function before(User $user, string $ability): ?bool
+    public function before($user, string $ability): ?bool
     {
-        if (in_array($user->role, [RoleEnum::ADMIN, RoleEnum::SUPER_ADMIN])) {
+        if ($user instanceof Admin) {
             return true;
         }
 
@@ -25,7 +25,7 @@ class DesignOptionPolicy
      * Determine whether the user can view any models.
      * أي مستخدم يمكنه عرض قائمة خيارات التصميم (للقراءة فقط)
      */
-    public function viewAny(User $user): bool
+    public function viewAny($user): bool
     {
         return true;
     }
@@ -34,7 +34,7 @@ class DesignOptionPolicy
      * Determine whether the user can view the model.
      * أي مستخدم يمكنه عرض خيار التصميم
      */
-    public function view(User $user, DesignOption $designOption): bool
+    public function view($user, DesignOption $designOption): bool
     {
         return true;
     }
@@ -43,44 +43,44 @@ class DesignOptionPolicy
      * Determine whether the user can create models.
      * فقط الأدمن يمكنه إنشاء خيارات التصميم
      */
-    public function create(User $user): bool
+    public function create($user): bool
     {
-        return in_array($user->role, [RoleEnum::ADMIN, RoleEnum::SUPER_ADMIN]);
+        return $user instanceof Admin;
     }
 
     /**
      * Determine whether the user can update the model.
      * فقط الأدمن يمكنه تحديث خيارات التصميم
      */
-    public function update(User $user, DesignOption $designOption): bool
+    public function update($user, DesignOption $designOption): bool
     {
-        return in_array($user->role, [RoleEnum::ADMIN, RoleEnum::SUPER_ADMIN]);
+        return $user instanceof Admin;
     }
 
     /**
      * Determine whether the user can delete the model.
      * فقط الأدمن يمكنه حذف خيارات التصميم
      */
-    public function delete(User $user, DesignOption $designOption): bool
+    public function delete($user, DesignOption $designOption): bool
     {
-        return in_array($user->role, [RoleEnum::ADMIN, RoleEnum::SUPER_ADMIN]);
+        return $user instanceof Admin;
     }
 
     /**
      * Determine whether the user can restore the model.
      * فقط الأدمن
      */
-    public function restore(User $user, DesignOption $designOption): bool
+    public function restore($user, DesignOption $designOption): bool
     {
-        return in_array($user->role, [RoleEnum::ADMIN, RoleEnum::SUPER_ADMIN]);
+        return $user instanceof Admin;
     }
 
     /**
      * Determine whether the user can permanently delete the model.
      * فقط الأدمن
      */
-    public function forceDelete(User $user, DesignOption $designOption): bool
+    public function forceDelete($user, DesignOption $designOption): bool
     {
-        return in_array($user->role, [RoleEnum::ADMIN, RoleEnum::SUPER_ADMIN]);
+        return $user instanceof Admin;
     }
 }

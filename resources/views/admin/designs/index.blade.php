@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'إدارة التصاميم')
+@section('title', __('admin.designs.title'))
 
 @push('styles')
 <style>
@@ -19,13 +19,9 @@
 <!-- Page Header -->
 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
     <div>
-        <h1 class="text-3xl font-bold text-gray-900">إدارة التصاميم</h1>
-        <p class="text-gray-600 mt-1">عرض وإدارة جميع تصاميم الكندرة</p>
+        <h1 class="text-3xl font-bold text-gray-900">{{ __('admin.designs.title') }}</h1>
+        <p class="text-gray-600 mt-1">{{ __('admin.designs.subtitle') }}</p>
     </div>
-    <button onclick="exportDesigns()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl font-medium transition inline-flex items-center gap-2 shadow-md hover:shadow-lg">
-        <i class="fas fa-file-excel"></i>
-        <span>تصدير Excel</span>
-    </button>
 </div>
 
 <!-- Statistics Cards -->
@@ -37,7 +33,7 @@
             <i class="fas fa-palette text-blue-600 text-3xl" style="display: inline-block !important; font-family: 'Font Awesome 6 Free' !important; font-weight: 900 !important;"></i>
         </div>
         <div class="flex-shrink-0">
-            <p class="text-gray-600 text-sm font-medium mb-2">إجمالي التصاميم</p>
+            <p class="text-gray-600 text-sm font-medium mb-2">{{ __('admin.designs.total_designs') }}</p>
             <p class="text-4xl font-bold text-gray-900">{{ $stats['total'] ?? 0 }}</p>
         </div>
     </div>
@@ -48,7 +44,7 @@
             <i class="fas fa-plus-circle text-purple-600 text-3xl" style="display: inline-block !important; font-family: 'Font Awesome 6 Free' !important; font-weight: 900 !important;"></i>
         </div>
         <div class="flex-shrink-0">
-            <p class="text-gray-600 text-sm font-medium mb-2">تصاميم اليوم</p>
+            <p class="text-gray-600 text-sm font-medium mb-2">{{ __('admin.designs.designs_today') }}</p>
             <p class="text-4xl font-bold text-gray-900">{{ $stats['today'] ?? 0 }}</p>
         </div>
     </div>
@@ -59,7 +55,7 @@
             <i class="fas fa-check-circle text-green-600 text-3xl" style="display: inline-block !important; font-family: 'Font Awesome 6 Free' !important; font-weight: 900 !important;"></i>
         </div>
         <div class="flex-shrink-0">
-            <p class="text-gray-600 text-sm font-medium mb-2">مع طلبات</p>
+            <p class="text-gray-600 text-sm font-medium mb-2">{{ __('admin.designs.with_orders') }}</p>
             <p class="text-4xl font-bold text-gray-900">{{ $stats['with_orders'] ?? 0 }}</p>
         </div>
     </div>
@@ -70,7 +66,7 @@
             <i class="fas fa-users text-orange-600 text-3xl" style="display: inline-block !important; font-family: 'Font Awesome 6 Free' !important; font-weight: 900 !important;"></i>
         </div>
         <div class="flex-shrink-0">
-            <p class="text-gray-600 text-sm font-medium mb-2">مستخدمين مميزين</p>
+            <p class="text-gray-600 text-sm font-medium mb-2">{{ __('admin.designs.featured_users') }}</p>
             <p class="text-4xl font-bold text-gray-900">{{ $stats['unique_users'] ?? 0 }}</p>
         </div>
     </div>
@@ -88,7 +84,7 @@
                     type="text" 
                     name="search" 
                     value="{{ request('search') }}"
-                    placeholder="ابحث باسم التصميم أو اسم المستخدم..."
+                    placeholder="{{ __('admin.designs.search_placeholder') }}"
                     class="w-full pr-12 pl-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300"
                 >
                 <i class="fas fa-search absolute right-4 top-4 text-gray-400"></i>
@@ -98,7 +94,7 @@
         <!-- Size Filter -->
         <div class="w-full lg:w-48">
             <select name="size_id" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300">
-                <option value="">جميع المقاسات</option>
+                <option value="">{{ __('admin.designs.all_sizes') }}</option>
                 @foreach($sizes ?? [] as $size)
                     <option value="{{ $size->id }}" {{ request('size_id') == $size->id ? 'selected' : '' }}>
                         {{ $size->code }} - {{ $size->name }}
@@ -110,7 +106,7 @@
         <!-- User Filter -->
         <div class="w-full lg:w-48">
             <select name="user_id" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300">
-                <option value="">جميع المستخدمين</option>
+                <option value="">{{ __('admin.designs.all_users') }}</option>
                 @foreach($users ?? [] as $user)
                     <option value="{{ $user->id }}" {{ request('user_id') == $user->id ? 'selected' : '' }}>
                         {{ $user->name }}
@@ -122,20 +118,20 @@
         <!-- Status Filter -->
         <div class="w-full lg:w-48">
             <select name="is_active" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300">
-                <option value="">جميع الحالات</option>
-                <option value="1" {{ request('is_active') === '1' ? 'selected' : '' }}>نشط</option>
-                <option value="0" {{ request('is_active') === '0' ? 'selected' : '' }}>غير نشط</option>
+                <option value="">{{ __('admin.designs.all_statuses') }}</option>
+                <option value="1" {{ request('is_active') === '1' ? 'selected' : '' }}>{{ __('common.active') }}</option>
+                <option value="0" {{ request('is_active') === '0' ? 'selected' : '' }}>{{ __('common.inactive') }}</option>
             </select>
         </div>
 
         <div class="flex gap-2">
             <button type="submit" class="search-btn text-white px-6 py-3 rounded-xl font-medium transition-all duration-300 inline-flex items-center gap-2 shadow-md hover:shadow-lg">
                 <i class="fas fa-filter"></i>
-                <span class="hidden sm:inline">بحث</span>
+                <span class="hidden sm:inline">{{ __('common.search') }}</span>
             </button>
             <a href="{{ route('dashboard.designs.index') }}" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-3 rounded-xl font-medium transition-all duration-300 inline-flex items-center gap-2">
                 <i class="fas fa-redo"></i>
-                <span class="hidden sm:inline">إعادة تعيين</span>
+                <span class="hidden sm:inline">{{ __('common.reset') }}</span>
             </a>
         </div>
     </form>
@@ -147,14 +143,14 @@
         <table class="w-full">
             <thead class="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
                 <tr>
-                    <th class="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">التصميم</th>
-                    <th class="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">الصورة</th>
-                    <th class="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">السعر</th>
-                    <th class="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">المقاسات</th>
-                    <th class="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">المستخدم</th>
-                    <th class="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">الحالة</th>
-                    <th class="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">تاريخ الإنشاء</th>
-                    <th class="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">الإجراءات</th>
+                    <th class="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">{{ __('admin.designs.design') }}</th>
+                    <th class="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">{{ __('admin.designs.image') }}</th>
+                    <th class="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">{{ __('admin.designs.price') }}</th>
+                    <th class="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">{{ __('admin.designs.sizes') }}</th>
+                    <th class="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">{{ __('admin.designs.user') }}</th>
+                    <th class="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">{{ __('admin.designs.status') }}</th>
+                    <th class="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">{{ __('admin.designs.created_at') }}</th>
+                    <th class="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">{{ __('admin.designs.actions') }}</th>
                 </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-100">
@@ -162,34 +158,28 @@
                 <tr class="hover:bg-gray-50 transition-colors duration-200">
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div>
-                            <p class="font-semibold text-gray-900">{{ $design->getTranslation('name', 'ar') ?? 'تصميم' }}</p>
+                            <p class="font-semibold text-gray-900">{{ $design->getTranslation('name', app()->getLocale(), true) ?: $design->getTranslation('name', app()->getLocale() === 'ar' ? 'en' : 'ar', true) ?: __('designs.create_title') }}</p>
                             <p class="text-xs text-gray-500">ID: {{ $design->id }}</p>
                             @if($design->order_items_count > 0)
                             <span class="inline-flex items-center gap-1 mt-1 px-2 py-0.5 bg-green-100 text-green-800 rounded-full text-xs font-semibold">
                                 <i class="fas fa-shopping-cart"></i>
-                                {{ $design->order_items_count }} طلب
+                                {{ $design->order_items_count }} {{ __('admin.designs.order_count') }}
                             </span>
                             @endif
                         </div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        @if($design->images && $design->images->count() > 0)
-                            <img 
-                                src="{{ $design->images->first()->image_url }}" 
-                                alt="{{ $design->getTranslation('name', 'ar') }}"
-                                class="w-16 h-16 rounded-lg object-cover ring-2 ring-gray-200"
-                                onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'w-16 h-16 rounded-lg bg-gray-100 flex items-center justify-center\'><i class=\'fas fa-palette text-2xl text-gray-300\'></i></div>';"
-                            >
-                        @else
-                            <div class="w-16 h-16 rounded-lg bg-gray-100 flex items-center justify-center">
-                                <i class="fas fa-palette text-2xl text-gray-300"></i>
-                            </div>
-                        @endif
+                        <img
+                            src="{{ $design->display_image_url }}"
+                            alt="{{ $design->getTranslation('name', app()->getLocale(), true) ?: $design->getTranslation('name', app()->getLocale() === 'ar' ? 'en' : 'ar', true) }}"
+                            class="w-16 h-16 rounded-lg object-cover ring-2 ring-gray-200"
+                            onerror="this.src='{{ asset(\App\Models\Design::PLACEHOLDER_IMAGE_PATH) }}'"
+                        >
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div class="flex items-center gap-2">
                             <i class="fas fa-money-bill-wave text-gray-400 text-sm"></i>
-                            <span class="text-sm font-semibold text-indigo-600">{{ number_format($design->price, 2) }} ر.س</span>
+                            <span class="text-sm font-semibold text-indigo-600">{{ number_format($design->price, 2) }} {{ __('common.sar') }}</span>
                         </div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
@@ -197,7 +187,7 @@
                             @forelse($design->sizes as $size)
                                 <span class="px-2 py-1 bg-blue-100 text-blue-900 text-xs rounded-full font-semibold">{{ $size->code }}</span>
                             @empty
-                                <span class="text-xs text-gray-400">لا يوجد</span>
+                                <span class="text-xs text-gray-400">{{ __('admin.designs.no_sizes') }}</span>
                             @endforelse
                         </div>
                     </td>
@@ -233,13 +223,13 @@
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div class="flex items-center gap-2">
-                            <a href="{{ route('dashboard.designs.show', $design) }}" class="text-blue-600 hover:text-blue-900 transition-colors duration-200 p-2 hover:bg-blue-50 rounded-lg" title="عرض">
+                            <a href="{{ route('dashboard.designs.show', $design) }}" class="text-blue-600 hover:text-blue-900 transition-colors duration-200 p-2 hover:bg-blue-50 rounded-lg" title="{{ __('common.view') }}">
                                 <i class="fas fa-eye"></i>
                             </a>
                             <button 
                                 onclick="deleteDesign({{ $design->id }})" 
                                 class="text-red-600 hover:text-red-900 transition-colors duration-200 p-2 hover:bg-red-50 rounded-lg"
-                                title="حذف"
+                                title="{{ __('common.delete') }}"
                             >
                                 <i class="fas fa-trash" style="display: inline-block !important; font-family: 'Font Awesome 6 Free' !important; font-weight: 900 !important;"></i>
                             </button>
@@ -253,8 +243,8 @@
                             <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
                                 <i class="fas fa-palette text-5xl text-gray-300"></i>
                             </div>
-                            <p class="text-xl font-semibold mb-2 text-gray-700">لا توجد تصاميم</p>
-                            <p class="text-sm text-gray-500">لم يتم العثور على أي تصاميم تطابق معايير البحث</p>
+                            <p class="text-xl font-semibold mb-2 text-gray-700">{{ __('admin.designs.no_designs') }}</p>
+                            <p class="text-sm text-gray-500">{{ __('admin.designs.no_designs_desc') }}</p>
                         </div>
                     </td>
                 </tr>
@@ -348,21 +338,21 @@ function toggleDesignStatus(designId, isActive) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            showNotification('success', data.message || 'تم تحديث حالة التصميم بنجاح');
+            showNotification('success', data.message || '{{ __('admin.designs.toggle_success') }}');
         } else {
             event.target.checked = !isActive;
-            showNotification('error', data.message || 'حدث خطأ أثناء تحديث حالة التصميم');
+            showNotification('error', data.message || '{{ __('admin.designs.toggle_error') }}');
         }
     })
     .catch(error => {
         event.target.checked = !isActive;
-        showNotification('error', 'حدث خطأ أثناء تحديث حالة التصميم');
+        showNotification('error', '{{ __('admin.designs.toggle_error') }}');
         console.error('Error:', error);
     });
 }
 
 function deleteDesign(designId) {
-    if (!confirm('هل أنت متأكد من حذف هذا التصميم؟ لا يمكن التراجع عن هذا الإجراء.')) {
+    if (!confirm('{{ __('admin.designs.delete_confirm') }}')) {
         return;
     }
 
@@ -376,21 +366,16 @@ function deleteDesign(designId) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            showNotification('success', data.message || 'تم حذف التصميم بنجاح');
+            showNotification('success', data.message || '{{ __('admin.designs.delete_success') }}');
             setTimeout(() => window.location.reload(), 1500);
         } else {
-            showNotification('error', data.message || 'حدث خطأ أثناء حذف التصميم');
+            showNotification('error', data.message || '{{ __('admin.designs.delete_error') }}');
         }
     })
     .catch(error => {
-        showNotification('error', 'حدث خطأ أثناء حذف التصميم');
+        showNotification('error', '{{ __('admin.designs.delete_error') }}');
         console.error('Error:', error);
     });
-}
-
-function exportDesigns() {
-    const params = new URLSearchParams(window.location.search);
-    window.location.href = `/dashboard/designs/export?${params.toString()}`;
 }
 
 function showNotification(type, message) {

@@ -3,7 +3,6 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use App\Enums\RoleEnum;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -34,8 +33,9 @@ class User extends Authenticatable
         'phone',
         'avatar',
         'is_active',
-        'role',
         'wallet_balance',
+        'fcm_token',
+        'user_number',
     ];
 
     /**
@@ -58,7 +58,6 @@ class User extends Authenticatable
         'last_login_at' => 'datetime',
         'is_active' => 'boolean',
         'password' => 'hashed',
-        'role' => RoleEnum::class,
         'wallet_balance' => 'decimal:2',
     ];
 
@@ -119,36 +118,87 @@ public function usedCoupons()
 }
 
 /**
+ * العلاقة مع التقييمات
+ */
+public function reviews()
+{
+    return $this->hasMany(Review::class);
+}
+
+/**
+ * العلاقة مع المقاسات
+ */
+public function measurements()
+{
+    return $this->hasMany(Measurement::class);
+}
+
+/**
  * Add funds to user's wallet
  */
 public function addFunds(float $amount, ?string $description = null): Transaction
 {
     $this->increment('wallet_balance', $amount);
     
-    return $this->transactions()->create([
+    $transaction = $this->transactions()->create([
         'amount' => $amount,
         'type' => 'deposit',
         'status' => 'completed',
         'description' => $description ?? 'Wallet recharge',
     ]);
+
+    // تفعيل حدث شحن المحفظة
+    event(new \App\Events\Wallet\WalletRecharged($this, $amount, $transaction));
+    
+    return $transaction;
 }
 
-/**
- * Deduct funds from user's wallet
- */
-public function deductFunds(float $amount, ?string $description = null): Transaction
-{
-    if ($this->wallet_balance < $amount) {
-        throw new \Exception('Insufficient wallet balance');
+    /**
+     * Deduct funds from user's wallet
+     */
+    public function deductFunds(float $amount, ?string $description = null): Transaction
+    {
+        if ($this->wallet_balance < $amount) {
+            throw new \Exception('Insufficient wallet balance');
+        }
+        
+        $this->decrement('wallet_balance', $amount);
+        
+        $transaction = $this->transactions()->create([
+            'amount' => $amount,
+            'type' => 'withdrawal',
+            'status' => 'completed',
+            'description' => $description ?? 'Wallet withdrawal',
+        ]);
+
+        // تفعيل حدث خصم من المحفظة
+        event(new \App\Events\Wallet\WalletDeducted($this, $amount, $transaction, $description));
+        
+        return $transaction;
     }
-    
-    $this->decrement('wallet_balance', $amount);
-    
-    return $this->transactions()->create([
-        'amount' => $amount,
-        'type' => 'withdrawal',
-        'status' => 'completed',
-        'description' => $description ?? 'Wallet withdrawal',
-    ]);
-}
+
+
+    /**
+     * إنشاء رقم مستخدم فريد - 10 أرقام عشوائية
+     */
+    public static function generateUserNumber(): string
+    {
+        do {
+            $userNumber = str_pad(random_int(1000000000, 9999999999), 10, '0', STR_PAD_LEFT);
+            $exists = self::where('user_number', $userNumber)->exists();
+        } while ($exists);
+
+        return $userNumber;
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($user) {
+            if (empty($user->user_number)) {
+                $user->user_number = self::generateUserNumber();
+            }
+        });
+    }
 }

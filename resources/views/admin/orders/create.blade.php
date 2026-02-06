@@ -157,7 +157,7 @@
                     <option value="">اختر التصميم</option>
                     @foreach($designs as $design)
                         <option value="{{ $design->id }}" data-price="{{ $design->price }}">
-                            {{ $design->getTranslation('name', 'ar') ?? 'تصميم' }} - {{ number_format($design->price, 2) }} ر.س
+                            {{ $design->getTranslation('name', app()->getLocale(), true) ?: $design->getTranslation('name', app()->getLocale() === 'ar' ? 'en' : 'ar', true) ?: __('designs.create_title') }} - {{ number_format($design->price, 2) }} {{ __('common.sar') }}
                         </option>
                     @endforeach
                 </select>
@@ -215,7 +215,7 @@
                                         value="{{ $option->id }}"
                                         class="ml-2 w-4 h-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
                                     >
-                                    <span>{{ $option->getTranslation('name', 'ar') }}</span>
+                                    <span>{{ $option->getTranslation('name', app()->getLocale(), true) ?: $option->getTranslation('name', app()->getLocale() === 'ar' ? 'en' : 'ar', true) }}</span>
                                 </label>
                             @endforeach
                         </div>

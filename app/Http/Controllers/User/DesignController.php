@@ -140,11 +140,17 @@ class DesignController extends Controller
     {
         $this->authorize('delete', $design);
 
-        $this->designService->deleteDesign($design);
-
-        return redirect()
-            ->route('my-designs.index')
-            ->with('success', 'تم حذف التصميم بنجاح');
+        try {
+            $this->designService->deleteDesign($design);
+            return redirect()
+                ->route('my-designs.index')
+                ->with('success', __('designs.deleted_success'));
+        } catch (\Throwable $e) {
+            report($e);
+            return redirect()
+                ->back()
+                ->with('error', __('designs.delete_error'));
+        }
     }
 
     /**

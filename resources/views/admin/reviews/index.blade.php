@@ -1,13 +1,13 @@
 @extends('layouts.admin')
 
-@section('title', 'إدارة التقييمات')
+@section('title', __('reviews.title'))
 
 @section('content')
 
 <!-- Page Header -->
 <div class="mb-6">
-    <h1 class="text-3xl font-bold text-gray-900">إدارة التقييمات</h1>
-    <p class="text-gray-600 mt-1">عرض ومراجعة تقييمات العملاء</p>
+    <h1 class="text-3xl font-bold text-gray-900">{{ __('reviews.title') }}</h1>
+    <p class="text-gray-600 mt-1">{{ __('reviews.subtitle') }}</p>
 </div>
 
 <!-- Statistics Cards -->
@@ -15,7 +15,7 @@
     <div class="bg-white rounded-lg shadow-sm p-4 border-r-4 border-gray-500">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-sm text-gray-600">إجمالي التقييمات</p>
+                <p class="text-sm text-gray-600">{{ __('reviews.stats.total') }}</p>
                 <p class="text-2xl font-bold text-gray-900 mt-1">{{ $stats['total'] ?? 0 }}</p>
             </div>
             <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
@@ -27,7 +27,7 @@
     <div class="bg-white rounded-lg shadow-sm p-4 border-r-4 border-green-500">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-sm text-gray-600">المعتمدة</p>
+                <p class="text-sm text-gray-600">{{ __('reviews.stats.approved') }}</p>
                 <p class="text-2xl font-bold text-gray-900 mt-1">{{ $stats['approved'] ?? 0 }}</p>
             </div>
             <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
@@ -39,7 +39,7 @@
     <div class="bg-white rounded-lg shadow-sm p-4 border-r-4 border-yellow-500">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-sm text-gray-600">قيد المراجعة</p>
+                <p class="text-sm text-gray-600">{{ __('reviews.stats.pending') }}</p>
                 <p class="text-2xl font-bold text-gray-900 mt-1">{{ $stats['pending'] ?? 0 }}</p>
             </div>
             <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
@@ -51,7 +51,7 @@
     <div class="bg-white rounded-lg shadow-sm p-4 border-r-4 border-red-500">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-sm text-gray-600">المرفوضة</p>
+                <p class="text-sm text-gray-600">{{ __('reviews.stats.rejected') }}</p>
                 <p class="text-2xl font-bold text-gray-900 mt-1">{{ $stats['rejected'] ?? 0 }}</p>
             </div>
             <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
@@ -63,7 +63,7 @@
     <div class="bg-white rounded-lg shadow-sm p-4 border-r-4 border-purple-500">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-sm text-gray-600">متوسط التقييم</p>
+                <p class="text-sm text-gray-600">{{ __('reviews.stats.average') }}</p>
                 <p class="text-2xl font-bold text-gray-900 mt-1">{{ number_format($stats['average'] ?? 0, 1) }}</p>
             </div>
             <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
@@ -79,13 +79,13 @@
         
         <!-- Search -->
         <div class="md:col-span-2">
-            <label class="block text-sm font-medium text-gray-700 mb-2">بحث</label>
+            <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('reviews.filters.search') }}</label>
             <div class="relative">
                 <input 
                     type="text" 
                     name="search" 
                     value="{{ request('search') }}"
-                    placeholder="ابحث باسم العميل أو التعليق..."
+                    placeholder="{{ __('reviews.filters.search_placeholder') }}"
                     class="w-full pr-10 pl-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 >
                 <i class="fas fa-search absolute right-3 top-3 text-gray-400"></i>
@@ -94,36 +94,36 @@
 
         <!-- Status Filter -->
         <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">الحالة</label>
+            <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('reviews.filters.status') }}</label>
             <select name="status" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                <option value="">جميع الحالات</option>
-                <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>قيد المراجعة</option>
-                <option value="approved" {{ request('status') === 'approved' ? 'selected' : '' }}>معتمد</option>
-                <option value="rejected" {{ request('status') === 'rejected' ? 'selected' : '' }}>مرفوض</option>
+                <option value="">{{ __('reviews.filters.all_statuses') }}</option>
+                <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>{{ __('reviews.status.pending') }}</option>
+                <option value="approved" {{ request('status') === 'approved' ? 'selected' : '' }}>{{ __('reviews.status.approved') }}</option>
+                <option value="rejected" {{ request('status') === 'rejected' ? 'selected' : '' }}>{{ __('reviews.status.rejected') }}</option>
             </select>
         </div>
 
         <!-- Rating Filter -->
         <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">التقييم</label>
+            <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('reviews.filters.rating') }}</label>
             <select name="rating" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                <option value="">جميع التقييمات</option>
-                <option value="5" {{ request('rating') === '5' ? 'selected' : '' }}>⭐⭐⭐⭐⭐ 5 نجوم</option>
-                <option value="4" {{ request('rating') === '4' ? 'selected' : '' }}>⭐⭐⭐⭐ 4 نجوم</option>
-                <option value="3" {{ request('rating') === '3' ? 'selected' : '' }}>⭐⭐⭐ 3 نجوم</option>
-                <option value="2" {{ request('rating') === '2' ? 'selected' : '' }}>⭐⭐ 2 نجمتان</option>
-                <option value="1" {{ request('rating') === '1' ? 'selected' : '' }}>⭐ 1 نجمة</option>
+                <option value="">{{ __('reviews.filters.all_ratings') }}</option>
+                <option value="5" {{ request('rating') === '5' ? 'selected' : '' }}>{{ __('reviews.rating.5_stars') }}</option>
+                <option value="4" {{ request('rating') === '4' ? 'selected' : '' }}>{{ __('reviews.rating.4_stars') }}</option>
+                <option value="3" {{ request('rating') === '3' ? 'selected' : '' }}>{{ __('reviews.rating.3_stars') }}</option>
+                <option value="2" {{ request('rating') === '2' ? 'selected' : '' }}>{{ __('reviews.rating.2_stars') }}</option>
+                <option value="1" {{ request('rating') === '1' ? 'selected' : '' }}>{{ __('reviews.rating.1_star') }}</option>
             </select>
         </div>
 
         <div class="md:col-span-4 flex gap-2">
             <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg font-medium transition">
                 <i class="fas fa-filter ml-2"></i>
-                تطبيق الفلاتر
+                {{ __('reviews.filters.apply') }}
             </button>
             <a href="{{ route('admin.reviews.index') }}" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-2 rounded-lg font-medium transition">
                 <i class="fas fa-redo ml-2"></i>
-                إعادة تعيين
+                {{ __('reviews.filters.reset') }}
             </a>
         </div>
     </form>
@@ -171,51 +171,33 @@
                 <div class="flex items-center gap-4 text-sm text-gray-600 mb-4">
                     <div class="flex items-center gap-2">
                         <i class="fas fa-shopping-cart text-gray-400"></i>
-                        <span>طلب #{{ $review->order->id }}</span>
+                        <span>{{ __('reviews.order.order') }} #{{ $review->order->id }}</span>
                     </div>
-                    @if($review->design)
                     <div class="flex items-center gap-2">
-                        <i class="fas fa-palette text-gray-400"></i>
-                        <span>{{ $review->design->name }}</span>
+                        <i class="fas fa-calendar text-gray-400"></i>
+                        <span>{{ $review->order->created_at->format('Y-m-d') }}</span>
                     </div>
-                    @endif
                 </div>
                 @endif
 
                 <!-- Status & Actions -->
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2">
-                        <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium
-                            @if($review->status === 'approved') bg-green-100 text-green-800
-                            @elseif($review->status === 'pending') bg-yellow-100 text-yellow-800
-                            @else bg-red-100 text-red-800
-                            @endif
-                        ">
-                            <i class="fas 
-                                @if($review->status === 'approved') fa-check-circle
-                                @elseif($review->status === 'pending') fa-clock
-                                @else fa-times-circle
-                                @endif
-                            "></i>
-                            {{ __('reviews.status.' . $review->status) }}
+                        <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            <i class="fas fa-check-circle"></i>
+                            {{ __('reviews.status.active') }}
                         </span>
                     </div>
 
                     <div class="flex items-center gap-2">
-                        @if($review->status === 'pending')
-                        <button onclick="approveReview({{ $review->id }})" class="bg-green-50 hover:bg-green-100 text-green-600 px-4 py-2 rounded-lg transition text-sm font-medium">
-                            <i class="fas fa-check ml-1"></i>
-                            اعتماد
-                        </button>
-                        <button onclick="rejectReview({{ $review->id }})" class="bg-red-50 hover:bg-red-100 text-red-600 px-4 py-2 rounded-lg transition text-sm font-medium">
-                            <i class="fas fa-times ml-1"></i>
-                            رفض
-                        </button>
-                        @endif
+                        <a href="{{ route('dashboard.orders.show', $review->order) }}" class="bg-blue-50 hover:bg-blue-100 text-blue-600 px-4 py-2 rounded-lg transition text-sm font-medium">
+                            <i class="fas fa-shopping-cart ml-1"></i>
+                            {{ __('reviews.actions.view_order') }}
+                        </a>
                         
                         <a href="{{ route('admin.users.show', $review->user) }}" class="bg-gray-100 hover:bg-gray-200 text-gray-600 px-4 py-2 rounded-lg transition text-sm font-medium">
                             <i class="fas fa-user ml-1"></i>
-                            الملف الشخصي
+                            {{ __('reviews.actions.view_profile') }}
                         </a>
                         
                         <button onclick="deleteReview({{ $review->id }})" class="bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-2 rounded-lg transition">
@@ -229,8 +211,8 @@
     @empty
     <div class="bg-white rounded-xl shadow-sm p-12 text-center">
         <i class="fas fa-star text-6xl text-gray-300 mb-4"></i>
-        <h3 class="text-xl font-bold text-gray-900 mb-2">لا توجد تقييمات</h3>
-        <p class="text-gray-600">لم يتم العثور على أي تقييمات تطابق معايير البحث</p>
+        <h3 class="text-xl font-bold text-gray-900 mb-2">{{ __('reviews.empty.title') }}</h3>
+        <p class="text-gray-600">{{ __('reviews.empty.description') }}</p>
     </div>
     @endforelse
 </div>
@@ -246,65 +228,29 @@
 
 @push('scripts')
 <script>
-function approveReview(reviewId) {
-    updateReviewStatus(reviewId, 'approved');
-}
-
-function rejectReview(reviewId) {
-    updateReviewStatus(reviewId, 'rejected');
-}
-
-function updateReviewStatus(reviewId, status) {
-    const confirmMessage = status === 'approved' ? 'هل أنت متأكد من اعتماد هذا التقييم؟' : 'هل أنت متأكد من رفض هذا التقييم؟';
-    
-    if (!confirm(confirmMessage)) {
-        return;
-    }
-
-    fetch(`/admin/reviews/${reviewId}/status`, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-        },
-        body: JSON.stringify({ status: status })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            window.location.reload();
-        } else {
-            alert(data.message || 'حدث خطأ');
-        }
-    })
-    .catch(error => {
-        alert('حدث خطأ');
-        console.error('Error:', error);
-    });
-}
-
 function deleteReview(reviewId) {
-    if (!confirm('هل أنت متأكد من حذف هذا التقييم؟ لا يمكن التراجع عن هذا الإجراء.')) {
+    if (!confirm('{{ __('reviews.messages.delete_confirm') }}')) {
         return;
     }
 
-    fetch(`/admin/reviews/${reviewId}`, {
+    fetch(`/api/reviews/${reviewId}`, {
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'Accept': 'application/json'
         }
     })
     .then(response => response.json())
     .then(data => {
-        if (data.success) {
+        if (data.message) {
             window.location.reload();
         } else {
-            alert(data.message || 'حدث خطأ أثناء حذف التقييم');
+            alert(data.message || '{{ __('reviews.messages.delete_error') }}');
         }
     })
     .catch(error => {
-        alert('حدث خطأ أثناء حذف التقييم');
+        alert('{{ __('reviews.messages.delete_error') }}');
         console.error('Error:', error);
     });
 }

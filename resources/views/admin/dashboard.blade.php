@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'لوحة التحكم الرئيسية')
+@section('title', __('dashboard.title'))
 
 @push('styles')
 <style>
@@ -234,11 +234,11 @@
         <div>
             <h1 class="text-4xl lg:text-5xl font-bold mb-3 flex items-center gap-3">
                 <span>👋</span>
-                مرحباً، {{ Auth::user()->name }}
+                {{ __('dashboard.welcome_user', ['name' => Auth::user()->name]) }}
             </h1>
             <p class="text-lg lg:text-xl text-white/90 flex items-center gap-2">
                 <i class="fas fa-calendar-day"></i>
-                إليك نظرة عامة على أداء المتجر - {{ now()->format('d/m/Y') }}
+                {{ __('dashboard.overview') }} - {{ now()->format('d/m/Y') }}
             </p>
         </div>
         <div class="hidden lg:block">
@@ -258,10 +258,10 @@
             <i class="fas fa-users"></i>
         </div>
         <div class="stat-card-value">{{ number_format($stats['total_users'] ?? 0) }}</div>
-        <div class="stat-card-label">إجمالي المستخدمين</div>
+        <div class="stat-card-label">{{ __('dashboard.stats.total_users') }}</div>
         <div class="stat-card-change" style="color: #10b981;">
             <i class="fas fa-arrow-up"></i>
-            <span>{{ $stats['new_users_today'] ?? 0 }} جديد اليوم</span>
+            <span>{{ $stats['new_users_today'] ?? 0 }} {{ __('dashboard.stats.new_today') }}</span>
         </div>
     </div>
 
@@ -271,10 +271,10 @@
             <i class="fas fa-shopping-cart"></i>
         </div>
         <div class="stat-card-value">{{ number_format($stats['total_orders'] ?? 0) }}</div>
-        <div class="stat-card-label">إجمالي الطلبات</div>
+        <div class="stat-card-label">{{ __('dashboard.stats.total_orders') }}</div>
         <div class="stat-card-change" style="color: #f59e0b;">
             <i class="fas fa-clock"></i>
-            <span>{{ $stats['pending_orders'] ?? 0 }} قيد الانتظار</span>
+            <span>{{ $stats['pending_orders'] ?? 0 }} {{ __('dashboard.stats.pending') }}</span>
         </div>
     </div>
 
@@ -284,10 +284,10 @@
             <i class="fas fa-dollar-sign"></i>
         </div>
         <div class="stat-card-value">{{ number_format($stats['total_revenue'] ?? 0, 2) }}</div>
-        <div class="stat-card-label">إجمالي الإيرادات (ريال)</div>
+        <div class="stat-card-label">{{ __('dashboard.stats.total_revenue_currency') }}</div>
         <div class="stat-card-change" style="color: #10b981;">
             <i class="fas fa-calendar-day"></i>
-            <span>{{ number_format($stats['revenue_today'] ?? 0, 2) }} ريال اليوم</span>
+            <span>{{ number_format($stats['revenue_today'] ?? 0, 2) }} {{ __('dashboard.stats.revenue_today') }}</span>
         </div>
     </div>
 
@@ -297,10 +297,10 @@
             <i class="fas fa-palette"></i>
         </div>
         <div class="stat-card-value">{{ number_format($stats['total_designs'] ?? 0) }}</div>
-        <div class="stat-card-label">إجمالي التصاميم</div>
+        <div class="stat-card-label">{{ __('dashboard.stats.total_designs') }}</div>
         <div class="stat-card-change" style="color: #10b981;">
             <i class="fas fa-plus-circle"></i>
-            <span>{{ $stats['new_designs_today'] ?? 0 }} جديد اليوم</span>
+            <span>{{ $stats['new_designs_today'] ?? 0 }} {{ __('dashboard.stats.new_today') }}</span>
         </div>
     </div>
 
@@ -314,13 +314,13 @@
         <div class="flex items-center justify-between mb-6">
             <h3 class="text-xl font-bold text-gray-900 flex items-center gap-2">
                 <i class="fas fa-tags text-indigo-600"></i>
-                إحصائيات الكوبونات
+                {{ __('dashboard.coupons.title') }}
             </h3>
         </div>
         <div class="space-y-4">
             <div>
                 <div class="flex items-center justify-between mb-2">
-                    <span class="text-sm font-medium text-gray-700">الكوبونات النشطة</span>
+                    <span class="text-sm font-medium text-gray-700">{{ __('dashboard.coupons.active') }}</span>
                     <span class="text-sm font-bold text-gray-900">{{ number_format($stats['active_coupons'] ?? 0) }}</span>
                 </div>
                 <div class="progress-bar">
@@ -329,7 +329,7 @@
             </div>
             <div>
                 <div class="flex items-center justify-between mb-2">
-                    <span class="text-sm font-medium text-gray-700">الكوبونات المنتهية</span>
+                    <span class="text-sm font-medium text-gray-700">{{ __('dashboard.coupons.expired') }}</span>
                     <span class="text-sm font-bold text-gray-900">{{ number_format($stats['expired_coupons'] ?? 0) }}</span>
                 </div>
                 <div class="progress-bar">
@@ -338,7 +338,7 @@
             </div>
             <div>
                 <div class="flex items-center justify-between mb-2">
-                    <span class="text-sm font-medium text-gray-700">الكوبونات المستخدمة</span>
+                    <span class="text-sm font-medium text-gray-700">{{ __('dashboard.coupons.used') }}</span>
                     <span class="text-sm font-bold text-gray-900">{{ number_format($stats['used_coupons'] ?? 0) }}</span>
                 </div>
                 <div class="progress-bar">
@@ -347,7 +347,7 @@
             </div>
             <div class="pt-4 border-t border-gray-200">
                 <div class="flex items-center justify-between">
-                    <span class="text-base font-bold text-gray-900">الإجمالي</span>
+                    <span class="text-base font-bold text-gray-900">{{ __('dashboard.coupons.total') }}</span>
                     <span class="text-2xl font-bold text-indigo-600">{{ number_format($stats['total_coupons'] ?? 0) }}</span>
                 </div>
             </div>
@@ -359,7 +359,7 @@
         <div class="flex items-center justify-between mb-6">
             <h3 class="text-xl font-bold text-gray-900 flex items-center gap-2">
                 <i class="fas fa-chart-pie text-purple-600"></i>
-                حالة الطلبات
+                {{ __('dashboard.orders.title') }}
             </h3>
         </div>
         <div class="space-y-4">
@@ -368,7 +368,7 @@
                     <div class="w-10 h-10 bg-amber-500 rounded-lg flex items-center justify-center">
                         <i class="fas fa-clock text-white"></i>
                     </div>
-                    <span class="text-sm font-medium text-gray-700">قيد الانتظار</span>
+                    <span class="text-sm font-medium text-gray-700">{{ __('dashboard.orders.pending') }}</span>
                 </div>
                 <span class="text-lg font-bold text-gray-900">{{ $stats['pending_orders'] ?? 0 }}</span>
             </div>
@@ -377,7 +377,7 @@
                     <div class="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
                         <i class="fas fa-cog text-white"></i>
                     </div>
-                    <span class="text-sm font-medium text-gray-700">قيد التجهيز</span>
+                    <span class="text-sm font-medium text-gray-700">{{ __('dashboard.orders.processing') }}</span>
                 </div>
                 <span class="text-lg font-bold text-gray-900">{{ $stats['processing_orders'] ?? 0 }}</span>
             </div>
@@ -386,7 +386,7 @@
                     <div class="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
                         <i class="fas fa-check-circle text-white"></i>
                     </div>
-                    <span class="text-sm font-medium text-gray-700">مكتملة</span>
+                    <span class="text-sm font-medium text-gray-700">{{ __('dashboard.orders.completed') }}</span>
                 </div>
                 <span class="text-lg font-bold text-gray-900">{{ $stats['completed_orders'] ?? 0 }}</span>
             </div>
@@ -395,7 +395,7 @@
                     <div class="w-10 h-10 bg-red-500 rounded-lg flex items-center justify-center">
                         <i class="fas fa-times-circle text-white"></i>
                     </div>
-                    <span class="text-sm font-medium text-gray-700">ملغاة</span>
+                    <span class="text-sm font-medium text-gray-700">{{ __('dashboard.orders.cancelled') }}</span>
                 </div>
                 <span class="text-lg font-bold text-gray-900">{{ $stats['cancelled_orders'] ?? 0 }}</span>
             </div>
@@ -407,7 +407,7 @@
         <div class="flex items-center justify-between mb-6">
             <h3 class="text-xl font-bold text-gray-900 flex items-center gap-2">
                 <i class="fas fa-bolt text-yellow-600"></i>
-                إجراءات سريعة
+                {{ __('dashboard.quick_actions.title') }}
             </h3>
         </div>
         <div class="grid grid-cols-2 gap-4">
@@ -415,25 +415,25 @@
                 <div class="quick-action-icon" style="background: linear-gradient(135deg, #6366f1, #8b5cf6);">
                     <i class="fas fa-tag"></i>
                 </div>
-                <p class="font-semibold text-gray-900 text-sm">إضافة كوبون</p>
+                <p class="font-semibold text-gray-900 text-sm">{{ __('dashboard.quick_actions.add_coupon') }}</p>
             </a>
             <a href="{{ route('admin.orders.index') }}" class="quick-action-card">
                 <div class="quick-action-icon" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
                     <i class="fas fa-shopping-cart"></i>
                 </div>
-                <p class="font-semibold text-gray-900 text-sm">الطلبات</p>
+                <p class="font-semibold text-gray-900 text-sm">{{ __('dashboard.quick_actions.orders') }}</p>
             </a>
             <a href="{{ route('admin.users.index') }}" class="quick-action-card">
                 <div class="quick-action-icon" style="background: linear-gradient(135deg, #3b82f6, #2563eb);">
                     <i class="fas fa-users"></i>
                 </div>
-                <p class="font-semibold text-gray-900 text-sm">المستخدمين</p>
+                <p class="font-semibold text-gray-900 text-sm">{{ __('dashboard.quick_actions.users') }}</p>
             </a>
             <a href="{{ route('admin.designs.index') }}" class="quick-action-card">
                 <div class="quick-action-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
                     <i class="fas fa-palette"></i>
                 </div>
-                <p class="font-semibold text-gray-900 text-sm">التصاميم</p>
+                <p class="font-semibold text-gray-900 text-sm">{{ __('dashboard.quick_actions.designs') }}</p>
             </a>
         </div>
     </div>
@@ -445,10 +445,10 @@
     <div class="flex items-center justify-between mb-6">
         <h2 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
             <i class="fas fa-clock text-purple-600"></i>
-            أحدث الطلبات
+            {{ __('dashboard.orders.recent_title') }}
         </h2>
         <a href="{{ route('admin.orders.index') }}" class="text-indigo-600 hover:text-indigo-700 text-sm font-semibold flex items-center gap-2 transition-colors">
-            عرض الكل
+            {{ __('dashboard.orders.view_all') }}
             <i class="fas fa-arrow-left"></i>
         </a>
     </div>
@@ -463,10 +463,10 @@
                         #{{ $order->id }}
                     </div>
                     <div>
-                        <p class="font-bold text-gray-900 mb-1">طلب #{{ $order->id }}</p>
+                        <p class="font-bold text-gray-900 mb-1">{{ __('dashboard.orders.order_number', ['id' => $order->id]) }}</p>
                         <p class="text-sm text-gray-600 flex items-center gap-2">
                             <i class="fas fa-user text-xs"></i>
-                            {{ $order->user->name ?? 'مستخدم محذوف' }}
+                            {{ $order->user->name ?? __('dashboard.orders.deleted_user') }}
                         </p>
                         <p class="text-xs text-gray-500 mt-1 flex items-center gap-2">
                             <i class="fas fa-calendar text-xs"></i>
@@ -475,7 +475,7 @@
                     </div>
                 </div>
                 <div class="text-left">
-                    <p class="font-bold text-gray-900 text-lg mb-2">{{ number_format($order->total_amount, 2) }} ريال</p>
+                    <p class="font-bold text-gray-900 text-lg mb-2">{{ number_format($order->total_amount, 2) }} {{ __('dashboard.common.sar') }}</p>
                     <span class="status-badge 
                         @if($order->status->value === 'pending') bg-amber-100 text-amber-700
                         @elseif($order->status->value === 'processing') bg-blue-100 text-blue-700
@@ -496,8 +496,8 @@
         <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <i class="fas fa-shopping-cart text-3xl text-gray-400"></i>
         </div>
-        <p class="text-gray-500 text-lg font-medium">لا توجد طلبات حديثة</p>
-        <p class="text-gray-400 text-sm mt-2">سيتم عرض الطلبات الجديدة هنا عند توفرها</p>
+        <p class="text-gray-500 text-lg font-medium">{{ __('dashboard.orders.no_recent_orders') }}</p>
+        <p class="text-gray-400 text-sm mt-2">{{ __('dashboard.orders.no_recent_orders_desc') }}</p>
     </div>
     @endif
 </div>

@@ -150,22 +150,65 @@ class DesignOptionController extends Controller
      */
     public function destroy(\Illuminate\Http\Request $request, DesignOption $designOption)
     {
-        // التحقق من صلاحية المشرف
-        $this->authorize('delete', $designOption);
+        try {
+            // التحقق من صلاحية المشرف
+            $this->authorize('delete', $designOption);
 
-        $this->designOptionService->deleteOption($designOption);
+            $deleted = $this->designOptionService->deleteOption($designOption);
 
-        if ($request->expectsJson()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Design option deleted successfully',
-                'message_ar' => 'تم حذف خيار التصميم بنجاح',
+            if (!$deleted) {
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Failed to delete design option',
+                        'message_ar' => 'فشل حذف خيار التصميم',
+                    ], 500);
+                }
+
+                return redirect()
+                    ->route('dashboard.design-options.index')
+                    ->with('error', 'فشل حذف خيار التصميم');
+            }
+
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Design option deleted successfully',
+                    'message_ar' => 'تم حذف خيار التصميم بنجاح',
+                ]);
+            }
+
+            return redirect()
+                ->route('dashboard.design-options.index')
+                ->with('success', 'تم حذف خيار التصميم بنجاح');
+        } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized to delete this option',
+                    'message_ar' => 'غير مصرح لك بحذف هذا الخيار',
+                ], 403);
+            }
+
+            abort(403, 'غير مصرح لك بحذف هذا الخيار');
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error in DesignOptionController@destroy', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
             ]);
-        }
 
-        return redirect()
-            ->route('dashboard.design-options.index')
-            ->with('success', 'تم حذف خيار التصميم بنجاح');
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'An error occurred while deleting option',
+                    'message_ar' => 'حدث خطأ أثناء حذف الخيار',
+                ], 500);
+            }
+
+            return redirect()
+                ->route('dashboard.design-options.index')
+                ->with('error', 'حدث خطأ أثناء حذف الخيار');
+        }
     }
 
     /**

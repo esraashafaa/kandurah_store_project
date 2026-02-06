@@ -16,13 +16,13 @@ enum OrderStatus: string
     public function label(): string
     {
         return match($this) {
-            self::PENDING => __('قيد الانتظار'),
-            self::PAID => __('مدفوع'),
-            self::CONFIRMED => __('مؤكد'),
-            self::PROCESSING => __('قيد التجهيز'),
-            self::SHIPPED => __('تم الشحن'),
-            self::DELIVERED => __('تم التوصيل'),
-            self::CANCELLED => __('ملغي'),
+            self::PENDING => __('orders.status.pending'),
+            self::PAID => __('orders.payment_status.paid'),
+            self::CONFIRMED => __('orders.status.confirmed'),
+            self::PROCESSING => __('orders.status.processing'),
+            self::SHIPPED => __('orders.status.shipped'),
+            self::DELIVERED => __('orders.status.delivered'),
+            self::CANCELLED => __('orders.status.cancelled'),
         };
     }
 

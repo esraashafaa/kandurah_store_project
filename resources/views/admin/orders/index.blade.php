@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'إدارة الطلبات')
+@section('title', __('admin.orders.title'))
 
 @push('styles')
 <style>
@@ -19,8 +19,8 @@
 <!-- Page Header -->
 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
     <div>
-        <h1 class="text-3xl font-bold text-gray-900">إدارة الطلبات</h1>
-        <p class="text-gray-600 mt-1">عرض وإدارة جميع طلبات المتجر</p>
+        <h1 class="text-3xl font-bold text-gray-900">{{ __('admin.orders.title') }}</h1>
+        <p class="text-gray-600 mt-1">{{ __('admin.orders.subtitle') }}</p>
     </div>
     {{-- <div class="flex gap-2">
         <button onclick="exportOrders()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl font-medium transition inline-flex items-center gap-2 shadow-md hover:shadow-lg">
@@ -39,7 +39,7 @@
             <i class="fas fa-shopping-cart text-gray-600 text-3xl" style="display: inline-block !important; font-family: 'Font Awesome 6 Free' !important; font-weight: 900 !important;"></i>
         </div>
         <div class="flex-shrink-0">
-            <p class="text-gray-600 text-sm font-medium mb-2">جميع الطلبات</p>
+            <p class="text-gray-600 text-sm font-medium mb-2">{{ __('admin.orders.all_orders') }}</p>
             <p class="text-4xl font-bold text-gray-900">{{ $stats['total'] ?? 0 }}</p>
         </div>
     </div>
@@ -50,7 +50,7 @@
             <i class="fas fa-clock text-yellow-600 text-3xl" style="display: inline-block !important; font-family: 'Font Awesome 6 Free' !important; font-weight: 900 !important;"></i>
         </div>
         <div class="flex-shrink-0">
-            <p class="text-gray-600 text-sm font-medium mb-2">قيد الانتظار</p>
+            <p class="text-gray-600 text-sm font-medium mb-2">{{ __('orders.status.pending') }}</p>
             <p class="text-4xl font-bold text-gray-900">{{ $stats['pending'] ?? 0 }}</p>
         </div>
     </div>
@@ -61,7 +61,7 @@
             <i class="fas fa-spinner text-blue-600 text-3xl" style="display: inline-block !important; font-family: 'Font Awesome 6 Free' !important; font-weight: 900 !important;"></i>
         </div>
         <div class="flex-shrink-0">
-            <p class="text-gray-600 text-sm font-medium mb-2">قيد المعالجة</p>
+            <p class="text-gray-600 text-sm font-medium mb-2">{{ __('orders.status.processing') }}</p>
             <p class="text-4xl font-bold text-gray-900">{{ $stats['processing'] ?? 0 }}</p>
         </div>
     </div>
@@ -72,7 +72,7 @@
             <i class="fas fa-check-circle text-green-600 text-3xl" style="display: inline-block !important; font-family: 'Font Awesome 6 Free' !important; font-weight: 900 !important;"></i>
         </div>
         <div class="flex-shrink-0">
-            <p class="text-gray-600 text-sm font-medium mb-2">مكتملة</p>
+            <p class="text-gray-600 text-sm font-medium mb-2">{{ __('orders.status.completed') }}</p>
             <p class="text-4xl font-bold text-gray-900">{{ $stats['completed'] ?? 0 }}</p>
         </div>
     </div>
@@ -83,7 +83,7 @@
             <i class="fas fa-times-circle text-red-600 text-3xl" style="display: inline-block !important; font-family: 'Font Awesome 6 Free' !important; font-weight: 900 !important;"></i>
         </div>
         <div class="flex-shrink-0">
-            <p class="text-gray-600 text-sm font-medium mb-2">ملغاة</p>
+            <p class="text-gray-600 text-sm font-medium mb-2">{{ __('orders.status.cancelled') }}</p>
             <p class="text-4xl font-bold text-gray-900">{{ $stats['cancelled'] ?? 0 }}</p>
         </div>
     </div>
@@ -101,7 +101,7 @@
                     type="text" 
                     name="search" 
                     value="{{ request('search') }}"
-                    placeholder="ابحث برقم الطلب أو اسم العميل..."
+                    placeholder="{{ __('admin.orders.search_placeholder') }}"
                     class="w-full pr-12 pl-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300"
                 >
                 <i class="fas fa-search absolute right-4 top-4 text-gray-400"></i>
@@ -111,22 +111,22 @@
         <!-- Status Filter -->
         <div class="w-full lg:w-48">
             <select name="status" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300">
-                <option value="">جميع الحالات</option>
-                <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>قيد الانتظار</option>
-                <option value="confirmed" {{ request('status') === 'confirmed' ? 'selected' : '' }}>مؤكد</option>
-                <option value="processing" {{ request('status') === 'processing' ? 'selected' : '' }}>قيد المعالجة</option>
-                <option value="completed" {{ request('status') === 'completed' ? 'selected' : '' }}>مكتمل</option>
-                <option value="cancelled" {{ request('status') === 'cancelled' ? 'selected' : '' }}>ملغي</option>
+                <option value="">{{ __('common.all_statuses') }}</option>
+                <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>{{ __('orders.status.pending') }}</option>
+                <option value="confirmed" {{ request('status') === 'confirmed' ? 'selected' : '' }}>{{ __('orders.status.confirmed') }}</option>
+                <option value="processing" {{ request('status') === 'processing' ? 'selected' : '' }}>{{ __('orders.status.processing') }}</option>
+                <option value="completed" {{ request('status') === 'completed' ? 'selected' : '' }}>{{ __('orders.status.completed') }}</option>
+                <option value="cancelled" {{ request('status') === 'cancelled' ? 'selected' : '' }}>{{ __('orders.status.cancelled') }}</option>
             </select>
         </div>
 
         <!-- Payment Method -->
         <div class="w-full lg:w-48">
             <select name="payment_method" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300">
-                <option value="">جميع طرق الدفع</option>
-                <option value="cash" {{ request('payment_method') === 'cash' ? 'selected' : '' }}>نقداً</option>
-                <option value="wallet" {{ request('payment_method') === 'wallet' ? 'selected' : '' }}>محفظة</option>
-                <option value="card" {{ request('payment_method') === 'card' ? 'selected' : '' }}>بطاقة</option>
+                <option value="">{{ __('common.all_payment_methods') }}</option>
+                <option value="cash" {{ request('payment_method') === 'cash' ? 'selected' : '' }}>{{ __('orders.payment_methods.cash') }}</option>
+                <option value="wallet" {{ request('payment_method') === 'wallet' ? 'selected' : '' }}>{{ __('orders.payment_methods.wallet') }}</option>
+                <option value="card" {{ request('payment_method') === 'card' ? 'selected' : '' }}>{{ __('orders.payment_methods.card') }}</option>
             </select>
         </div>
 
@@ -143,11 +143,11 @@
         <div class="flex gap-2">
             <button type="submit" class="search-btn text-white px-6 py-3 rounded-xl font-medium transition-all duration-300 inline-flex items-center gap-2 shadow-md hover:shadow-lg">
                 <i class="fas fa-filter"></i>
-                <span class="hidden sm:inline">بحث</span>
+                <span class="hidden sm:inline">{{ __('common.search') }}</span>
             </button>
             <a href="{{ route('dashboard.orders.index') }}" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-3 rounded-xl font-medium transition-all duration-300 inline-flex items-center gap-2">
                 <i class="fas fa-redo"></i>
-                <span class="hidden sm:inline">إعادة تعيين</span>
+                <span class="hidden sm:inline">{{ __('common.reset') }}</span>
             </a>
         </div>
     </form>
@@ -159,27 +159,30 @@
         <table class="w-full">
             <thead class="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
                 <tr>
-                    <th class="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">رقم الطلب</th>
-                    <th class="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">العميل</th>
-                    <th class="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">المبلغ</th>
-                    <th class="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">طريقة الدفع</th>
-                    <th class="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">الحالة</th>
-                    <th class="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">التاريخ</th>
-                    <th class="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">الإجراءات</th>
+                    <th class="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">{{ __('orders.order_number') }}</th>
+                    <th class="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">{{ __('admin.orders.customer') ?? 'العميل' }}</th>
+                    <th class="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">{{ __('admin.orders.amount') ?? 'المبلغ' }}</th>
+                    <th class="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">{{ __('orders.payment_method') }}</th>
+                    <th class="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">{{ __('common.status') }}</th>
+                    <th class="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">{{ __('admin.orders.date') ?? 'التاريخ' }}</th>
+                    <th class="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">{{ __('common.actions') }}</th>
                 </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-100">
                 @forelse($orders as $order)
                 <tr class="hover:bg-gray-50 transition-colors duration-200">
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="flex items-center gap-3">
-                            <div class="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center ring-2 ring-gray-200">
-                                <i class="fas fa-receipt text-indigo-600 text-xl"></i>
-                            </div>
-                            <div>
-                                <p class="font-semibold text-gray-900">#{{ $order->id }}</p>
-                                <p class="text-xs text-gray-500">{{ $order->items_count ?? 0 }} عنصر</p>
-                            </div>
+                        <div class="flex items-center gap-2">
+                            @php
+                                // إنشاء order_number إذا لم يكن موجوداً
+                                if (!$order->order_number) {
+                                    $order->order_number = \App\Models\Order::generateOrderNumber();
+                                    $order->saveQuietly(); // حفظ بدون تشغيل events
+                                }
+                            @endphp
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-bold text-indigo-700 bg-indigo-50 border border-indigo-200">
+                                {{ $order->order_number }}
+                            </span>
                         </div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
@@ -202,7 +205,6 @@
                             <i class="fas fa-money-bill-wave text-gray-400 text-sm"></i>
                             <div>
                                 <p class="text-sm font-semibold text-gray-900">{{ number_format($order->total_amount, 2) }} ر.س</p>
-                                <p class="text-xs text-gray-500">{{ $order->items_count ?? 0 }} عنصر</p>
                             </div>
                         </div>
                     </td>
@@ -226,20 +228,31 @@
                         <select 
                             class="px-3 py-1.5 rounded-full text-xs font-semibold border-0 cursor-pointer transition-all duration-200
                                 @if($order->status->value === 'pending') bg-yellow-100 text-yellow-900
+                                @elseif($order->status->value === 'paid') bg-blue-100 text-blue-900
                                 @elseif($order->status->value === 'confirmed') bg-indigo-100 text-indigo-900
                                 @elseif($order->status->value === 'processing') bg-blue-100 text-blue-900
-                                @elseif($order->status->value === 'delivered' || $order->status->value === 'completed') bg-green-100 text-green-900
+                                @elseif($order->status->value === 'shipped') bg-cyan-100 text-cyan-900
+                                @elseif($order->status->value === 'delivered') bg-green-100 text-green-900
                                 @else bg-red-100 text-red-900
                                 @endif
                             "
                             onchange="updateOrderStatus({{ $order->id }}, this.value)"
+                            @if($order->status->value === 'delivered' || $order->status->value === 'cancelled') disabled @endif
                         >
-                            <option value="pending" {{ $order->status->value === 'pending' ? 'selected' : '' }}>قيد الانتظار</option>
-                            <option value="confirmed" {{ $order->status->value === 'confirmed' ? 'selected' : '' }}>مؤكد</option>
-                            <option value="processing" {{ $order->status->value === 'processing' ? 'selected' : '' }}>قيد المعالجة</option>
-                            <option value="shipped" {{ $order->status->value === 'shipped' ? 'selected' : '' }}>تم الشحن</option>
-                            <option value="delivered" {{ $order->status->value === 'delivered' ? 'selected' : '' }}>تم التوصيل</option>
-                            <option value="cancelled" {{ $order->status->value === 'cancelled' ? 'selected' : '' }}>ملغي</option>
+                            <option value="{{ $order->status->value }}" selected>{{ $order->status->label() }}</option>
+                            @php
+                                $currentStatus = $order->status;
+                                $nextStatus = $currentStatus->next();
+                                $canCancel = $currentStatus->canBeCancelled();
+                            @endphp
+                            
+                            @if($nextStatus)
+                                <option value="{{ $nextStatus->value }}">{{ $nextStatus->label() }}</option>
+                            @endif
+                            
+                            @if($canCancel)
+                                <option value="cancelled">{{ __('orders.status.cancelled') }}</option>
+                            @endif
                         </select>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
@@ -251,9 +264,9 @@
                             <a href="{{ route('dashboard.orders.show', $order) }}" class="text-blue-600 hover:text-blue-900 transition-colors duration-200 p-2 hover:bg-blue-50 rounded-lg" title="عرض">
                                 <i class="fas fa-eye"></i>
                             </a>
-                            <button onclick="printInvoice({{ $order->id }})" class="text-green-600 hover:text-green-900 transition-colors duration-200 p-2 hover:bg-green-50 rounded-lg" title="طباعة">
+                            <a href="{{ route('dashboard.orders.invoice.view', $order) }}" target="_blank" class="text-green-600 hover:text-green-900 transition-colors duration-200 p-2 hover:bg-green-50 rounded-lg" title="طباعة الفاتورة">
                                 <i class="fas fa-print"></i>
-                            </button>
+                            </a>
                             @if($order->status->value !== 'delivered' && $order->status->value !== 'cancelled' && $order->status->value !== 'completed')
                             <button 
                                 onclick="cancelOrder({{ $order->id }})" 
@@ -324,11 +337,37 @@ function updateOrderStatus(orderId, status) {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'X-Requested-With': 'XMLHttpRequest'
         },
         body: JSON.stringify({ status: status })
     })
-    .then(response => response.json())
+    .then(response => {
+        // التحقق من نوع المحتوى
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+            // إذا كانت الاستجابة HTML، يعني هناك خطأ في الـ route أو الصلاحيات
+            return response.text().then(html => {
+                console.error('Received HTML instead of JSON:', html);
+                throw new Error('حدث خطأ في الاتصال بالخادم. يرجى التحقق من الصلاحيات.');
+            });
+        }
+        
+        // التحقق من حالة الاستجابة
+        if (!response.ok) {
+            return response.json().then(data => {
+                throw new Error(data.message || 'حدث خطأ أثناء تحديث حالة الطلب');
+            }).catch(err => {
+                // إذا فشل parsing JSON، يعني الاستجابة HTML
+                if (err instanceof SyntaxError) {
+                    throw new Error('حدث خطأ في الاتصال بالخادم. يرجى التحقق من الصلاحيات.');
+                }
+                throw err;
+            });
+        }
+        return response.json();
+    })
     .then(data => {
         if (data.success) {
             showNotification('success', data.message || 'تم تحديث حالة الطلب بنجاح');
@@ -338,7 +377,7 @@ function updateOrderStatus(orderId, status) {
         }
     })
     .catch(error => {
-        showNotification('error', 'حدث خطأ أثناء تحديث حالة الطلب');
+        showNotification('error', error.message || 'حدث خطأ أثناء تحديث حالة الطلب');
         console.error('Error:', error);
     });
 }
@@ -368,10 +407,6 @@ function cancelOrder(orderId) {
         showNotification('error', 'حدث خطأ أثناء إلغاء الطلب');
         console.error('Error:', error);
     });
-}
-
-function printInvoice(orderId) {
-    window.open(`/dashboard/orders/${orderId}/invoice/pdf`, '_blank');
 }
 
 function exportOrders() {

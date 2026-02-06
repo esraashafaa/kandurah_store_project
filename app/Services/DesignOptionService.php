@@ -7,6 +7,7 @@ use App\Models\DesignOption;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class DesignOptionService
 {
@@ -129,20 +130,32 @@ class DesignOptionService
      */
     public function deleteOption(DesignOption $option): bool
     {
-        $optionId = $option->id;
+        return DB::transaction(function () use ($option) {
+            try {
+                $optionId = $option->id;
 
-        // فصل العلاقات مع التصاميم
-        $option->designs()->detach();
+                // فصل العلاقات مع التصاميم
+                $option->designs()->detach();
 
-        $deleted = $option->delete();
+                $deleted = $option->delete();
 
-        if ($deleted) {
-            Log::info('Design option deleted', [
-                'option_id' => $optionId,
-            ]);
-        }
+                if ($deleted) {
+                    Log::info('Design option deleted', [
+                        'option_id' => $optionId,
+                    ]);
+                }
 
-        return $deleted;
+                return $deleted;
+            } catch (\Exception $e) {
+                Log::error('Error deleting design option', [
+                    'option_id' => $option->id ?? null,
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString(),
+                ]);
+                
+                throw $e;
+            }
+        });
     }
 
     /**

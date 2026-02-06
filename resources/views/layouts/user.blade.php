@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="rtl">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="{{ app()->getLocale() === 'ar' ? 'rtl' : 'ltr' }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -48,7 +48,7 @@
                         <i class="fas fa-compass ml-1"></i>
                         تصفح التصاميم
                     </a>
-                    
+                    @include('layouts.partials.notifications-bell')
                     <div class="flex items-center gap-2 mr-4">
                         <span class="text-sm text-gray-600">{{ auth()->user()->name }}</span>
                         <form method="POST" action="{{ route('logout') }}">
@@ -98,6 +98,7 @@
             </p>
         </div>
     </footer>
+    @stack('scripts')
 </body>
 </html>
 

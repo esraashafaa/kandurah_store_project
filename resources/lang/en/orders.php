@@ -1,0 +1,85 @@
+<?php
+
+return [
+    /*
+    |--------------------------------------------------------------------------
+    | Orders Language Lines (English)
+    |--------------------------------------------------------------------------
+    */
+
+    'status' => [
+        'pending' => 'Pending',
+        'confirmed' => 'Confirmed',
+        'processing' => 'Processing',
+        'completed' => 'Completed',
+        'cancelled' => 'Cancelled',
+        'refunded' => 'Refunded',
+        'unknown' => 'Unknown',
+        'shipped' => 'Shipped',
+        'delivered' => 'Delivered',
+    ],
+
+    'payment_methods' => [
+        'cash' => 'Cash',
+        'wallet' => 'Wallet',
+        'card' => 'Credit Card',
+        'bank_transfer' => 'Bank Transfer',
+    ],
+
+    'payment_status' => [
+        'pending' => 'Pending',
+        'paid' => 'Paid',
+        'failed' => 'Failed',
+        'refunded' => 'Refunded',
+    ],
+    
+    'order_number' => 'Order Number',
+    'order_details' => 'Order Details',
+    'order_items' => 'Order Items',
+    'delivery_address' => 'Delivery Address',
+    'customer_info' => 'Customer Information',
+    'payment_summary' => 'Payment Summary',
+    'created_at' => 'Created At',
+    'updated_at' => 'Last Updated',
+    'view_invoice_pdf' => 'View Invoice PDF',
+    'download_invoice' => 'Download Invoice',
+    'print_invoice' => 'Print Invoice',
+    'print_order' => 'Print Order',
+    'invoice_not_available' => 'Invoice Not Available',
+    'invoice_available_after_completion' => 'Invoice available after order completion',
+    'update_status' => 'Update Status',
+    'payment_method' => 'Payment Method',
+    'payment_successful' => 'Payment Successful',
+    'amount_received' => 'Amount Received',
+    'no_delivery_address' => 'No delivery address specified',
+    'order_notes' => 'Order Notes',
+    'order_timeline' => 'Order Timeline',
+    'order_created' => 'Order Created',
+    'order_confirmed' => 'Order Confirmed',
+    'order_completed' => 'Order Completed',
+    'order_cancelled' => 'Order Cancelled',
+    'view_profile' => 'View Profile',
+    'customer_since' => 'Customer Since',
+    'total_orders' => 'Total Orders',
+    'orders_count' => ':count order',
+    'subtotal' => 'Subtotal',
+    'discount' => 'Discount',
+    'coupon_discount' => 'Discount (Coupon)',
+    'shipping' => 'Shipping',
+    'total' => 'Total',
+    'selected_options' => 'Selected Options',
+    'size' => 'Size',
+    'color' => 'Color',
+    'fabric_type' => 'Fabric',
+    'dome_type' => 'Dome Type',
+    'sleeve_type' => 'Sleeve Type',
+    'price' => 'Price',
+    'quantity' => 'Quantity',
+    'notes' => 'Notes',
+    'city' => 'City',
+    'area' => 'Area',
+    'detailed_address' => 'Detailed Address',
+    'email' => 'Email',
+    'phone' => 'Phone',
+    'not_available' => 'Not Available',
+];

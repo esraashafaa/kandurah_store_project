@@ -13,10 +13,10 @@ enum RoleEnum: string
     public function label(): string
     {
         return match($this) {
-            self::GUEST => 'Guest',
-            self::USER => 'User',
-            self::ADMIN => 'Admin',
-            self::SUPER_ADMIN => 'Super Admin',
+            self::GUEST => __('admin.admins.role_admin'), // Guest uses admin translation
+            self::USER => __('admin.users.normal_user'),
+            self::ADMIN => __('admin.admins.role_admin'),
+            self::SUPER_ADMIN => __('admin.admins.role_super_admin'),
         };
     }
     

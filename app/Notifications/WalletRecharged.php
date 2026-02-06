@@ -37,7 +37,13 @@ class WalletRecharged extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
-        return ['mail', 'database'];
+        $channels = ['mail', 'database'];
+        
+        if ($notifiable->fcm_token) {
+            $channels[] = \App\Notifications\Channels\FirebaseChannel::class;
+        }
+        
+        return $channels;
     }
 
     /**
@@ -87,6 +93,26 @@ class WalletRecharged extends Notification implements ShouldQueue
             'amount' => $this->amount,
             'transaction_id' => $this->transactionId,
             'new_balance' => $notifiable->wallet_balance,
+        ];
+    }
+
+    /**
+     * Get the Firebase representation of the notification.
+     *
+     * @return array<string, mixed>
+     */
+    public function toFirebase(object $notifiable): array
+    {
+        return [
+            'title' => 'تم شحن محفظتك',
+            'body' => 'تم إضافة $' . number_format($this->amount, 2) . ' إلى محفظتك. الرصيد الحالي: $' . number_format($notifiable->wallet_balance, 2),
+            'data' => [
+                'type' => 'wallet_recharge',
+                'amount' => (string) $this->amount,
+                'transaction_id' => (string) $this->transactionId,
+                'new_balance' => (string) $notifiable->wallet_balance,
+                'action_url' => route('dashboard'),
+            ],
         ];
     }
 }

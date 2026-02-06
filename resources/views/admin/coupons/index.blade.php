@@ -1,18 +1,18 @@
 @extends('layouts.admin')
 
-@section('title', 'إدارة الكوبونات')
+@section('title', __('coupons.title'))
 
 @section('content')
 
 <!-- Page Header -->
 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
     <div>
-        <h1 class="text-3xl font-bold text-gray-900">إدارة الكوبونات</h1>
-        <p class="text-gray-600 mt-1">إنشاء وإدارة كوبونات الخصم</p>
+        <h1 class="text-3xl font-bold text-gray-900">{{ __('coupons.title') }}</h1>
+        <p class="text-gray-600 mt-1">{{ __('coupons.subtitle') }}</p>
     </div>
     <a href="{{ route('admin.coupons.create') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-medium transition inline-flex items-center gap-2">
         <i class="fas fa-plus"></i>
-        <span>إضافة كوبون جديد</span>
+        <span>{{ __('coupons.add_new') }}</span>
     </a>
 </div>
 
@@ -21,7 +21,7 @@
     <div class="bg-white rounded-lg shadow-sm p-4 border-r-4 border-blue-500">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-sm text-gray-600">إجمالي الكوبونات</p>
+                <p class="text-sm text-gray-600">{{ __('coupons.stats.total') }}</p>
                 <p class="text-2xl font-bold text-gray-900 mt-1">{{ $stats['total'] ?? 0 }}</p>
             </div>
             <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -33,7 +33,7 @@
     <div class="bg-white rounded-lg shadow-sm p-4 border-r-4 border-green-500">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-sm text-gray-600">النشطة</p>
+                <p class="text-sm text-gray-600">{{ __('coupons.stats.active') }}</p>
                 <p class="text-2xl font-bold text-gray-900 mt-1">{{ $stats['active'] ?? 0 }}</p>
             </div>
             <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
@@ -45,7 +45,7 @@
     <div class="bg-white rounded-lg shadow-sm p-4 border-r-4 border-red-500">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-sm text-gray-600">المنتهية</p>
+                <p class="text-sm text-gray-600">{{ __('coupons.stats.expired') }}</p>
                 <p class="text-2xl font-bold text-gray-900 mt-1">{{ $stats['expired'] ?? 0 }}</p>
             </div>
             <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
@@ -57,7 +57,7 @@
     <div class="bg-white rounded-lg shadow-sm p-4 border-r-4 border-purple-500">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-sm text-gray-600">المستخدمة</p>
+                <p class="text-sm text-gray-600">{{ __('coupons.stats.used') }}</p>
                 <p class="text-2xl font-bold text-gray-900 mt-1">{{ $stats['used'] ?? 0 }}</p>
             </div>
             <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
@@ -79,7 +79,7 @@
                         <i class="fas fa-tag text-2xl text-white"></i>
                     </div>
                     <div>
-                        <p class="text-sm text-gray-600">كود الكوبون</p>
+                        <p class="text-sm text-gray-600">{{ __('coupons.card.code_label') }}</p>
                         <p class="text-2xl font-bold tracking-wider text-gray-900">{{ $coupon->code }}</p>
                     </div>
                 </div>
@@ -87,12 +87,12 @@
                     @if($coupon->is_active)
                         <span class="inline-block px-3 py-1 bg-green-500 text-white rounded-full text-xs font-semibold">
                             <i class="fas fa-check-circle ml-1"></i>
-                            نشط
+                            {{ __('coupons.card.active') }}
                         </span>
                     @else
                         <span class="inline-block px-3 py-1 bg-gray-400 text-white rounded-full text-xs font-semibold">
                             <i class="fas fa-times-circle ml-1"></i>
-                            غير نشط
+                            {{ __('coupons.card.inactive') }}
                         </span>
                     @endif
                 </div>
@@ -102,22 +102,22 @@
                 <div>
                     <p class="text-3xl font-bold {{ $coupon->is_active ? 'text-green-600' : 'text-gray-600' }}">
                         @if(($coupon->discount_type ?? 'percentage') === 'fixed')
-                            {{ number_format($coupon->discount, 2) }} ريال
+                            {{ number_format($coupon->discount, 2) }} {{ __('coupons.currency') }}
                         @else
                             {{ number_format($coupon->discount, 2) }}%
                         @endif
                     </p>
                     <p class="text-sm text-gray-600">
                         @if(($coupon->discount_type ?? 'percentage') === 'fixed')
-                            مبلغ الخصم
+                            {{ __('coupons.card.discount_amount') }}
                         @else
-                            نسبة الخصم
+                            {{ __('coupons.card.discount_percentage') }}
                         @endif
                     </p>
                 </div>
                 <div class="text-left">
                     <p class="text-2xl font-bold text-gray-900">{{ $coupon->usage_count ?? 0 }}</p>
-                    <p class="text-sm text-gray-600">مرة استخدام</p>
+                    <p class="text-sm text-gray-600">{{ __('coupons.times_used') }}</p>
                 </div>
             </div>
         </div>
@@ -127,22 +127,22 @@
             <div class="space-y-3 mb-4">
                 @if($coupon->max_usage)
                 <div class="flex items-center justify-between text-sm">
-                    <span class="text-gray-600">الحد الأقصى للاستخدام</span>
-                    <span class="font-semibold text-gray-900">{{ $coupon->max_usage }} مرة</span>
+                    <span class="text-gray-600">{{ __('coupons.card.max_usage') }}</span>
+                    <span class="font-semibold text-gray-900">{{ $coupon->max_usage }} {{ __('coupons.times') }}</span>
                 </div>
                 @endif
                 
                 @if($coupon->min_purchase)
                 <div class="flex items-center justify-between text-sm">
-                    <span class="text-gray-600">الحد الأدنى للشراء</span>
-                    <span class="font-semibold text-gray-900">{{ number_format($coupon->min_purchase, 2) }} ريال</span>
+                    <span class="text-gray-600">{{ __('coupons.card.min_purchase') }}</span>
+                    <span class="font-semibold text-gray-900">{{ number_format($coupon->min_purchase, 2) }} {{ __('coupons.currency') }}</span>
                 </div>
                 @endif
 
                 <div class="flex items-center justify-between text-sm">
-                    <span class="text-gray-600">تاريخ الانتهاء</span>
+                    <span class="text-gray-600">{{ __('coupons.card.expires_at') }}</span>
                     <span class="font-semibold {{ $coupon->expires_at && $coupon->expires_at->isPast() ? 'text-red-600' : 'text-gray-900' }}">
-                        {{ $coupon->expires_at ? $coupon->expires_at->format('Y-m-d') : 'غير محدد' }}
+                        {{ $coupon->expires_at ? $coupon->expires_at->format('Y-m-d') : __('coupons.card.not_set') }}
                     </span>
                 </div>
             </div>
@@ -151,7 +151,7 @@
             <div class="bg-red-50 border-r-4 border-red-500 p-3 rounded mb-4">
                 <p class="text-sm text-red-700">
                     <i class="fas fa-exclamation-triangle ml-1"></i>
-                    انتهت صلاحية هذا الكوبون
+                    {{ __('coupons.card.expired') }}
                 </p>
             </div>
             @endif
@@ -163,9 +163,9 @@
                     data-coupon-id="{{ $coupon->id }}"
                     data-action="edit"
                     class="coupon-action-btn flex-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 py-2 rounded-lg transition text-sm font-medium"
-                    aria-label="تعديل الكوبون {{ $coupon->code }}">
+                    aria-label="{{ __('coupons.edit') }} {{ $coupon->code }}">
                     <i class="fas fa-edit ml-1"></i>
-                    تعديل
+                    {{ __('coupons.edit') }}
                 </button>
                 @if($coupon->is_active)
                 <button 
@@ -173,9 +173,9 @@
                     data-coupon-id="{{ $coupon->id }}"
                     data-action="toggle"
                     class="coupon-action-btn flex-1 bg-red-50 hover:bg-red-100 text-red-600 py-2 rounded-lg transition text-sm font-medium"
-                    aria-label="تعطيل الكوبون {{ $coupon->code }}">
+                    aria-label="{{ __('coupons.deactivate') }} {{ $coupon->code }}">
                     <i class="fas fa-times-circle ml-1"></i>
-                    تعطيل
+                    {{ __('coupons.deactivate') }}
                 </button>
                 @else
                 <button 
@@ -183,9 +183,9 @@
                     data-coupon-id="{{ $coupon->id }}"
                     data-action="toggle"
                     class="coupon-action-btn flex-1 bg-green-50 hover:bg-green-100 text-green-600 py-2 rounded-lg transition text-sm font-medium"
-                    aria-label="تفعيل الكوبون {{ $coupon->code }}">
+                    aria-label="{{ __('coupons.activate') }} {{ $coupon->code }}">
                     <i class="fas fa-check-circle ml-1"></i>
-                    تفعيل
+                    {{ __('coupons.activate') }}
                 </button>
                 @endif
                 <button 
@@ -193,7 +193,7 @@
                     data-coupon-id="{{ $coupon->id }}"
                     data-action="delete"
                     class="coupon-action-btn bg-gray-100 hover:bg-gray-200 text-gray-600 px-4 py-2 rounded-lg transition"
-                    aria-label="حذف الكوبون {{ $coupon->code }}">
+                    aria-label="{{ __('coupons.delete') }} {{ $coupon->code }}">
                     <i class="fas fa-trash"></i>
                 </button>
             </div>
@@ -203,11 +203,11 @@
     <div class="col-span-full">
         <div class="bg-white rounded-xl shadow-sm p-12 text-center">
             <i class="fas fa-tags text-6xl text-gray-300 mb-4"></i>
-            <h3 class="text-xl font-bold text-gray-900 mb-2">لا توجد كوبونات</h3>
-            <p class="text-gray-600 mb-6">ابدأ بإنشاء كوبون خصم جديد</p>
+            <h3 class="text-xl font-bold text-gray-900 mb-2">{{ __('coupons.empty.title') }}</h3>
+            <p class="text-gray-600 mb-6">{{ __('coupons.empty.description') }}</p>
             <a href="{{ route('admin.coupons.create') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-medium transition inline-flex items-center gap-2">
                 <i class="fas fa-plus"></i>
-                <span>إضافة كوبون جديد</span>
+                <span>{{ __('coupons.add_new') }}</span>
             </a>
         </div>
     </div>
@@ -330,14 +330,14 @@
     }
 
     function toggleCoupon(couponId, buttonElement) {
-        if (!confirm('هل أنت متأكد من تغيير حالة الكوبون؟')) {
+        if (!confirm('{{ __('coupons.messages.toggle_confirm') }}')) {
             return;
         }
 
         // تعطيل الزر أثناء المعالجة
         const originalContent = buttonElement.innerHTML;
         buttonElement.disabled = true;
-        buttonElement.innerHTML = '<i class="fas fa-spinner fa-spin ml-1"></i> جاري المعالجة...';
+        buttonElement.innerHTML = '<i class="fas fa-spinner fa-spin ml-1"></i> {{ __('coupons.messages.processing') }}';
 
         fetch(`{{ url('/admin/coupons') }}/${couponId}/toggle`, {
             method: 'POST',
@@ -357,13 +357,13 @@
             if (data.success) {
                 window.location.reload();
             } else {
-                alert(data.message || 'حدث خطأ');
+                alert(data.message || '{{ __('coupons.messages.error') }}');
                 buttonElement.disabled = false;
                 buttonElement.innerHTML = originalContent;
             }
         })
         .catch(error => {
-            alert('حدث خطأ أثناء تغيير حالة الكوبون');
+            alert('{{ __('coupons.messages.toggle_error') }}');
             console.error('Error:', error);
             buttonElement.disabled = false;
             buttonElement.innerHTML = originalContent;
@@ -371,7 +371,7 @@
     }
 
     function deleteCoupon(couponId) {
-        if (!confirm('هل أنت متأكد من حذف هذا الكوبون؟ لا يمكن التراجع عن هذا الإجراء.')) {
+        if (!confirm('{{ __('coupons.messages.delete_confirm') }}')) {
             return;
         }
 
@@ -401,7 +401,7 @@
             if (data.success) {
                 window.location.reload();
             } else {
-                alert(data.message || 'حدث خطأ أثناء حذف الكوبون');
+                alert(data.message || '{{ __('coupons.messages.delete_error') }}');
                 if (button) {
                     button.disabled = false;
                     button.innerHTML = originalContent;
@@ -409,7 +409,7 @@
             }
         })
         .catch(error => {
-            alert('حدث خطأ أثناء حذف الكوبون');
+            alert('{{ __('coupons.messages.delete_error') }}');
             console.error('Error:', error);
             if (button) {
                 button.disabled = false;

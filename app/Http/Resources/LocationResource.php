@@ -2,7 +2,7 @@
 
 namespace App\Http\Resources;
 
-use App\Enums\RoleEnum;
+use App\Models\Admin;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -35,7 +35,7 @@ class LocationResource extends JsonResource
             'updated_at' => $this->updated_at?->toISOString(),
 
             'user_id' => $this->when(
-                $request->user() && in_array($request->user()->role, [RoleEnum::ADMIN, RoleEnum::SUPER_ADMIN]), 
+                $request->user() && $request->user() instanceof Admin, 
                 $this->user_id
             ),
 

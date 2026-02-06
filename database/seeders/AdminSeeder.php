@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
+use App\Models\Admin;
 use App\Enums\RoleEnum;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -16,16 +16,14 @@ class AdminSeeder extends Seeder
     public function run(): void
     {
         // Super Admin
-        $superAdmin = User::firstOrCreate(
+        $superAdmin = Admin::firstOrCreate(
             ['email' => 'superadmin@kandura.com'],
             [
                 'name' => 'Super Admin',
                 'password' => Hash::make('password'),
-                'phone' => '0501234567',
-                'role' => RoleEnum::SUPER_ADMIN->value,
+                'role' => RoleEnum::SUPER_ADMIN,
                 'is_active' => true,
                 'email_verified_at' => now(),
-                'wallet_balance' => 0.00,
             ]
         );
 
@@ -36,16 +34,14 @@ class AdminSeeder extends Seeder
         }
 
         // Admin
-        $admin = User::firstOrCreate(
+        $admin = Admin::firstOrCreate(
             ['email' => 'admin@kandura.com'],
             [
                 'name' => 'Admin',
                 'password' => Hash::make('password'),
-                'phone' => '0501234568',
-                'role' => RoleEnum::ADMIN->value,
+                'role' => RoleEnum::ADMIN,
                 'is_active' => true,
                 'email_verified_at' => now(),
-                'wallet_balance' => 0.00,
             ]
         );
 

@@ -3,40 +3,55 @@
 namespace App\Policies;
 
 use App\Models\User;
-use App\Enums\RoleEnum;
+use App\Models\Admin;
 
 class UserPolicy
 {
-    public function viewAny(User $user): bool
+    /**
+     * Determine if the user can view any models.
+     */
+    public function viewAny($user): bool
     {
-        return $user->role === RoleEnum::ADMIN || $user->role === RoleEnum::SUPER_ADMIN;
+        return $user instanceof Admin;
     }
 
-    public function view(User $user, User $model): bool
+    /**
+     * Determine if the user can view the model.
+     */
+    public function view($user, User $model): bool
     {
-        return $user->role === RoleEnum::ADMIN || $user->role === RoleEnum::SUPER_ADMIN || $user->id === $model->id;
+        return $user instanceof Admin || ($user instanceof User && $user->id === $model->id);
     }
 
-    public function create(User $user): bool
+    /**
+     * Determine if the user can create models.
+     */
+    public function create($user): bool
     {
-        return $user->role === RoleEnum::ADMIN || $user->role === RoleEnum::SUPER_ADMIN;
+        return $user instanceof Admin;
     }
 
-
-    public function update(User $user, User $model): bool
+    /**
+     * Determine if the user can update the model.
+     */
+    public function update($user, User $model): bool
     {
-        return $user->role === RoleEnum::ADMIN || $user->role === RoleEnum::SUPER_ADMIN || $user->id === $model->id;
+        return $user instanceof Admin || ($user instanceof User && $user->id === $model->id);
     }
 
-    
-    public function delete(User $user, User $model): bool
+    /**
+     * Determine if the user can delete the model.
+     */
+    public function delete($user, User $model): bool
     {
-        return $user->role === RoleEnum::ADMIN || $user->role === RoleEnum::SUPER_ADMIN;
+        return $user instanceof Admin;
     }
 
-   
-    public function toggleActive(User $user): bool
+    /**
+     * Determine if the user can toggle active status.
+     */
+    public function toggleActive($user): bool
     {
-        return $user->role === RoleEnum::ADMIN || $user->role === RoleEnum::SUPER_ADMIN;
+        return $user instanceof Admin;
     }
 }

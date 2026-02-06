@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'إدارة المستخدمين')
+@section('title', __('admin.users.title'))
 
 @push('styles')
 <style>
@@ -19,14 +19,8 @@
 <!-- Page Header -->
 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
     <div>
-        <h1 class="text-3xl font-bold text-gray-900">إدارة المستخدمين</h1>
-        <p class="text-gray-600 mt-1">عرض وإدارة جميع مستخدمي المتجر</p>
-    </div>
-    <div class="flex gap-2">
-        <a href="{{ route('admin.users.create') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl font-medium transition inline-flex items-center gap-2 shadow-md hover:shadow-lg">
-            <i class="fas fa-plus"></i>
-            <span>إضافة مستخدم</span>
-        </a>
+        <h1 class="text-3xl font-bold text-gray-900">{{ __('admin.users.title') }}</h1>
+        <p class="text-gray-600 mt-1">{{ __('admin.users.subtitle') }}</p>
     </div>
 </div>
 
@@ -35,45 +29,34 @@
 <div class="w-full flex gap-4 mb-8 flex-nowrap items-stretch">
     
     <div class="bg-white rounded-xl shadow-md p-6 border-r-4 border-blue-500 hover:shadow-lg transition-shadow
-                flex flex-col justify-between items-center text-center w-1/4 min-h-[200px]">
+                flex flex-col justify-between items-center text-center w-1/3 min-h-[200px]">
         <div class="w-16 h-16 min-w-[4rem] min-h-[4rem] bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
             <i class="fas fa-users text-blue-600 text-3xl" style="display: inline-block !important; font-family: 'Font Awesome 6 Free' !important; font-weight: 900 !important;"></i>
         </div>
         <div class="flex-shrink-0">
-            <p class="text-gray-600 text-sm font-medium mb-2">إجمالي المستخدمين</p>
+            <p class="text-gray-600 text-sm font-medium mb-2">{{ __('admin.users.total_users') }}</p>
             <p class="text-4xl font-bold text-gray-900">{{ $stats['total'] ?? 0 }}</p>
         </div>
     </div>
 
     <div class="bg-white rounded-xl shadow-md p-6 border-r-4 border-green-500 hover:shadow-lg transition-shadow
-                flex flex-col justify-between items-center text-center w-1/4 min-h-[200px]">
+                flex flex-col justify-between items-center text-center w-1/3 min-h-[200px]">
         <div class="w-16 h-16 min-w-[4rem] min-h-[4rem] bg-green-100 rounded-xl flex items-center justify-center flex-shrink-0">
             <i class="fas fa-user-check text-green-600 text-3xl" style="display: inline-block !important; font-family: 'Font Awesome 6 Free' !important; font-weight: 900 !important;"></i>
         </div>
         <div class="flex-shrink-0">
-            <p class="text-gray-600 text-sm font-medium mb-2">المستخدمين النشطين</p>
+            <p class="text-gray-600 text-sm font-medium mb-2">{{ __('admin.users.active_users') }}</p>
             <p class="text-4xl font-bold text-gray-900">{{ $stats['active'] ?? 0 }}</p>
         </div>
     </div>
 
-    <div class="bg-white rounded-xl shadow-md p-6 border-r-4 border-purple-500 hover:shadow-lg transition-shadow
-                flex flex-col justify-between items-center text-center w-1/4 min-h-[200px]">
-        <div class="w-16 h-16 min-w-[4rem] min-h-[4rem] bg-purple-100 rounded-xl flex items-center justify-center flex-shrink-0">
-            <i class="fas fa-user-shield text-purple-600 text-3xl" style="display: inline-block !important; font-family: 'Font Awesome 6 Free' !important; font-weight: 900 !important;"></i>
-        </div>
-        <div class="flex-shrink-0">
-            <p class="text-gray-600 text-sm font-medium mb-2">المشرفين</p>
-            <p class="text-4xl font-bold text-gray-900">{{ $stats['admins'] ?? 0 }}</p>
-        </div>
-    </div>
-
     <div class="bg-white rounded-xl shadow-md p-6 border-r-4 border-orange-500 hover:shadow-lg transition-shadow
-                flex flex-col justify-between items-center text-center w-1/4 min-h-[200px]">
+                flex flex-col justify-between items-center text-center w-1/3 min-h-[200px]">
         <div class="w-16 h-16 min-w-[4rem] min-h-[4rem] bg-orange-100 rounded-xl flex items-center justify-center flex-shrink-0">
             <i class="fas fa-user-plus text-orange-600 text-3xl" style="display: inline-block !important; font-family: 'Font Awesome 6 Free' !important; font-weight: 900 !important;"></i>
         </div>
         <div class="flex-shrink-0">
-            <p class="text-gray-600 text-sm font-medium mb-2">مستخدمين جدد اليوم</p>
+            <p class="text-gray-600 text-sm font-medium mb-2">{{ __('admin.users.new_users_today') }}</p>
             <p class="text-4xl font-bold text-gray-900">{{ $stats['new_today'] ?? 0 }}</p>
         </div>
     </div>
@@ -92,7 +75,7 @@
                     type="text" 
                     name="search" 
                     value="{{ request('search') }}"
-                    placeholder="ابحث بالاسم أو البريد الإلكتروني أو الهاتف..."
+                    placeholder="{{ __('common.search') }}..."
                     class="w-full pr-12 pl-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300"
                 >
                 <i class="fas fa-search absolute right-4 top-4 text-gray-400"></i>
@@ -102,30 +85,30 @@
         <!-- Role Filter -->
         <div class="w-full lg:w-48">
             <select name="role" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300">
-                <option value="">جميع الأدوار</option>
-                <option value="user" {{ request('role') === 'user' ? 'selected' : '' }}>مستخدم</option>
-                <option value="admin" {{ request('role') === 'admin' ? 'selected' : '' }}>مشرف</option>
-                <option value="super_admin" {{ request('role') === 'super_admin' ? 'selected' : '' }}>مشرف عام</option>
+                <option value="">{{ __('common.all_roles') }}</option>
+                <option value="user" {{ request('role') === 'user' ? 'selected' : '' }}>{{ __('users.roles.user') }}</option>
+                <option value="admin" {{ request('role') === 'admin' ? 'selected' : '' }}>{{ __('users.roles.admin') }}</option>
+                <option value="super_admin" {{ request('role') === 'super_admin' ? 'selected' : '' }}>{{ __('users.roles.super_admin') }}</option>
             </select>
         </div>
 
         <!-- Status Filter -->
         <div class="w-full lg:w-48">
             <select name="status" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300">
-                <option value="">جميع الحالات</option>
-                <option value="active" {{ request('status') === 'active' ? 'selected' : '' }}>نشط</option>
-                <option value="inactive" {{ request('status') === 'inactive' ? 'selected' : '' }}>غير نشط</option>
+                <option value="">{{ __('common.all_statuses') }}</option>
+                <option value="active" {{ request('status') === 'active' ? 'selected' : '' }}>{{ __('users.status.active') }}</option>
+                <option value="inactive" {{ request('status') === 'inactive' ? 'selected' : '' }}>{{ __('users.status.inactive') }}</option>
             </select>
         </div>
 
         <div class="flex gap-2">
             <button type="submit" class="search-btn text-white px-6 py-3 rounded-xl font-medium transition-all duration-300 inline-flex items-center gap-2 shadow-md hover:shadow-lg">
                 <i class="fas fa-filter"></i>
-                <span class="hidden sm:inline">بحث</span>
+                <span class="hidden sm:inline">{{ __('common.search') }}</span>
             </button>
             <a href="{{ route('admin.users.index') }}" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-3 rounded-xl font-medium transition-all duration-300 inline-flex items-center gap-2">
                 <i class="fas fa-redo"></i>
-                <span class="hidden sm:inline">إعادة تعيين</span>
+                <span class="hidden sm:inline">{{ __('common.reset') }}</span>
             </a>
         </div>
     </form>
@@ -137,14 +120,14 @@
         <table class="w-full">
             <thead class="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
                 <tr>
-                    <th class="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">المستخدم</th>
-                    <th class="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">البريد الإلكتروني</th>
-                    <th class="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">الهاتف</th>
-                    <th class="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">المحفظة</th>
-                    <th class="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">الدور</th>
-                    <th class="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">الحالة</th>
-                    <th class="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">تاريخ التسجيل</th>
-                    <th class="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">الإجراءات</th>
+                    <th class="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">{{ __('admin.users.user') }}</th>
+                    <th class="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">{{ __('admin.users.email') }}</th>
+                    <th class="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">{{ __('admin.users.phone') }}</th>
+                    <th class="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">{{ __('admin.users.wallet') }}</th>
+                    <th class="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">{{ __('admin.users.role') }}</th>
+                    <th class="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">{{ __('common.status') }}</th>
+                    <th class="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">{{ __('admin.users.registration_date') }}</th>
+                    <th class="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">{{ __('common.actions') }}</th>
                 </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-100">
@@ -161,7 +144,6 @@
                             @endif
                             <div>
                                 <p class="font-semibold text-gray-900">{{ $user->name }}</p>
-                                <p class="text-xs text-gray-500">ID: {{ $user->id }}</p>
                             </div>
                         </div>
                     </td>
@@ -177,13 +159,13 @@
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div class="flex items-center gap-2">
                             <i class="fas fa-phone text-gray-400 text-sm"></i>
-                            <span class="text-sm text-gray-900">{{ $user->phone ?? 'غير محدد' }}</span>
+                            <span class="text-sm text-gray-900">{{ $user->phone ?? __('common.not_set') }}</span>
                         </div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div class="flex items-center gap-2">
                             <i class="fas fa-wallet text-indigo-500 text-sm"></i>
-                            <span class="text-sm font-semibold text-gray-900">{{ number_format($user->wallet_balance ?? 0, 2) }} ريال</span>
+                            <span class="text-sm font-semibold text-gray-900">{{ number_format($user->wallet_balance ?? 0, 2) }} {{ __('common.sar') }}</span>
                         </div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
@@ -219,17 +201,17 @@
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div class="flex items-center gap-2">
-                            <a href="{{ route('admin.users.show', $user) }}" class="text-blue-600 hover:text-blue-900 transition-colors duration-200 p-2 hover:bg-blue-50 rounded-lg" title="عرض">
+                            <a href="{{ route('admin.users.show', $user) }}" class="text-blue-600 hover:text-blue-900 transition-colors duration-200 p-2 hover:bg-blue-50 rounded-lg" title="{{ __('common.view') }}">
                                 <i class="fas fa-eye"></i>
                             </a>
-                            <a href="{{ route('admin.users.edit', $user) }}" class="text-indigo-600 hover:text-indigo-900 transition-colors duration-200 p-2 hover:bg-indigo-50 rounded-lg" title="تعديل">
+                            <a href="{{ route('admin.users.edit', $user) }}" class="text-indigo-600 hover:text-indigo-900 transition-colors duration-200 p-2 hover:bg-indigo-50 rounded-lg" title="{{ __('common.edit') }}">
                                 <i class="fas fa-edit"></i>
                             </a>
                             @if(Auth::id() !== $user->id)
                             <button 
                                 onclick="deleteUser({{ $user->id }})" 
                                 class="text-red-600 hover:text-red-900 transition-colors duration-200 p-2 hover:bg-red-50 rounded-lg"
-                                title="حذف"
+                                title="{{ __('common.delete') }}"
                             >
                                 <i class="fas fa-trash" style="display: inline-block !important; font-family: 'Font Awesome 6 Free' !important; font-weight: 900 !important;"></i>
                             </button>
@@ -244,8 +226,8 @@
                             <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
                                 <i class="fas fa-users text-5xl text-gray-300"></i>
                             </div>
-                            <p class="text-xl font-semibold mb-2 text-gray-700">لا توجد مستخدمين</p>
-                            <p class="text-sm text-gray-500">قم بإضافة مستخدم جديد للبدء</p>
+                            <p class="text-xl font-semibold mb-2 text-gray-700">{{ __('admin.users.no_users') }}</p>
+                            <p class="text-sm text-gray-500">{{ __('admin.users.no_users_desc') }}</p>
                         </div>
                     </td>
                 </tr>
@@ -283,7 +265,7 @@
 // No need for duplicate code here
 
 function toggleUserStatus(userId, isActive) {
-    if (!confirm('هل أنت متأكد من تغيير حالة المستخدم؟')) {
+    if (!confirm('{{ __('admin.users.change_status_confirm') }}')) {
         event.target.checked = !isActive;
         return;
     }
@@ -299,21 +281,21 @@ function toggleUserStatus(userId, isActive) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            showNotification('success', data.message || 'تم تحديث حالة المستخدم بنجاح');
+            showNotification('success', data.message || '{{ __('admin.users.status_updated') }}');
         } else {
             event.target.checked = !isActive;
-            showNotification('error', data.message || 'حدث خطأ أثناء تحديث حالة المستخدم');
+            showNotification('error', data.message || '{{ __('admin.users.status_update_error') }}');
         }
     })
     .catch(error => {
         event.target.checked = !isActive;
-        showNotification('error', 'حدث خطأ أثناء تحديث حالة المستخدم');
+        showNotification('error', '{{ __('admin.users.status_update_error') }}');
         console.error('Error:', error);
     });
 }
 
 function deleteUser(userId) {
-    if (!confirm('هل أنت متأكد من حذف هذا المستخدم؟ لا يمكن التراجع عن هذا الإجراء.')) {
+    if (!confirm('{{ __('admin.users.delete_confirm') }}')) {
         return;
     }
 
@@ -327,14 +309,14 @@ function deleteUser(userId) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            showNotification('success', data.message || 'تم حذف المستخدم بنجاح');
+            showNotification('success', data.message || '{{ __('admin.users.user_deleted') }}');
             setTimeout(() => window.location.reload(), 1500);
         } else {
-            showNotification('error', data.message || 'حدث خطأ أثناء حذف المستخدم');
+            showNotification('error', data.message || '{{ __('admin.users.user_delete_error') }}');
         }
     })
     .catch(error => {
-        showNotification('error', 'حدث خطأ أثناء حذف المستخدم');
+        showNotification('error', '{{ __('admin.users.user_delete_error') }}');
         console.error('Error:', error);
     });
 }

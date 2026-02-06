@@ -16,6 +16,11 @@ class Design extends Model
     use HasFactory, SoftDeletes, HasTranslations;
 
     /**
+     * رابط الصورة الافتراضية عند عدم وجود صور للتصميم
+     */
+    public const PLACEHOLDER_IMAGE_PATH = 'images/design-placeholder.svg';
+
+    /**
      * الحقول القابلة للترجمة
      */
     public $translatable = ['name', 'description'];
@@ -61,6 +66,24 @@ class Design extends Model
     public function images(): HasMany
     {
         return $this->hasMany(DesignImage::class)->orderBy('sort_order');
+    }
+
+    /**
+     * رابط صورة العرض: أول صورة للتصميم أو الصورة الافتراضية
+     * استخدمه في القوائم والبطاقات لضمان ظهور صورة دائماً
+     */
+    public function getDisplayImageUrlAttribute(): string
+    {
+        $first = $this->images()->first();
+        return $first ? $first->image_url : asset(self::PLACEHOLDER_IMAGE_PATH);
+    }
+
+    /**
+     * هل التصميم يملك صوراً مرفوعة
+     */
+    public function getHasImagesAttribute(): bool
+    {
+        return $this->images()->exists();
     }
 
     /**

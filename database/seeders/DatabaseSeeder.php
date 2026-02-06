@@ -27,6 +27,15 @@ class DatabaseSeeder extends Seeder
             
             // 4. إنشاء خيارات التصميم الافتراضية
             DesignOptionsSeeder::class,
+            
+            // 5. إنشاء المواقع للمستخدمين
+            LocationsSeeder::class,
+            
+            // 6. إنشاء التصاميم التجريبية
+            DesignsSeeder::class,
+            
+            // 7. إنشاء الطلبات التجريبية
+            OrdersSeeder::class,
         ]);
     }
 }

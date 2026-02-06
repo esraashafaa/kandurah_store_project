@@ -409,13 +409,7 @@
             <div class="grid grid-cols-2 md:grid-cols-3 gap-4 p-4">
                 @forelse($user->designs()->latest()->take(6)->get() as $design)
                 <div class="group relative aspect-square rounded-lg overflow-hidden bg-gray-100">
-                    @if($design->images->first())
-                        <img src="{{ Storage::url($design->images->first()->image_path) }}" alt="{{ $design->name }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
-                    @else
-                        <div class="w-full h-full flex items-center justify-center">
-                            <i class="fas fa-palette text-4xl text-gray-300"></i>
-                        </div>
-                    @endif
+                    <img src="{{ $design->display_image_url }}" alt="{{ is_array($design->name) ? ($design->name[app()->getLocale()] ?? $design->name['ar'] ?? $design->name['en'] ?? '') : $design->name }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" onerror="this.src='{{ asset(\App\Models\Design::PLACEHOLDER_IMAGE_PATH) }}'">
                     <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
                         <div class="absolute bottom-0 left-0 right-0 p-3">
                             <p class="text-white text-sm font-semibold">{{ $design->name }}</p>
@@ -469,6 +463,63 @@
                 @endif
             </div>
         </div>
+
+        <!-- Permissions & Groups (Only for Admin/Super Admin) -->
+        @if(in_array($user->role->value, ['admin', 'super_admin']))
+        <div class="bg-white rounded-xl shadow-sm p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-bold text-gray-800">الصلاحيات</h2>
+                @if(auth()->user()->role === \App\Enums\RoleEnum::SUPER_ADMIN)
+                <a href="{{ route('admin.users.edit', $user) }}" class="text-sm text-indigo-600 hover:text-indigo-800">
+                    <i class="fas fa-edit ml-1"></i>
+                    تعديل
+                </a>
+                @endif
+            </div>
+            
+            <!-- Permission Groups -->
+            @if(isset($userGroups) && count($userGroups) > 0)
+            <div class="mb-6">
+                <h3 class="text-sm font-semibold text-gray-700 mb-3">مجموعات الصلاحيات</h3>
+                <div class="flex flex-wrap gap-2">
+                    @foreach($userGroups as $group)
+                    <span class="inline-flex items-center gap-2 px-3 py-1.5 bg-indigo-100 text-indigo-700 rounded-lg text-sm font-medium">
+                        <i class="fas fa-layer-group text-xs"></i>
+                        {{ $group->getName('ar') }}
+                        <span class="text-xs text-indigo-500">({{ $group->permissions->count() }})</span>
+                    </span>
+                    @endforeach
+                </div>
+            </div>
+            @endif
+            
+            <!-- Individual Permissions -->
+            @if(isset($userPermissions) && $userPermissions->count() > 0)
+            <div>
+                <h3 class="text-sm font-semibold text-gray-700 mb-3">الصلاحيات الفردية ({{ $userPermissions->count() }})</h3>
+                <div class="max-h-64 overflow-y-auto space-y-2">
+                    @foreach($userPermissions->groupBy(function($permission) {
+                        $parts = explode('.', $permission->name);
+                        return $parts[0] ?? 'other';
+                    }) as $category => $categoryPermissions)
+                    <div class="border border-gray-200 rounded-lg p-2">
+                        <p class="text-xs font-semibold text-gray-600 mb-1 capitalize">{{ $category }}</p>
+                        <div class="flex flex-wrap gap-1">
+                            @foreach($categoryPermissions as $permission)
+                            <span class="inline-block px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs">
+                                {{ $permission->name }}
+                            </span>
+                            @endforeach
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+            @else
+            <p class="text-sm text-gray-500 text-center py-4">لا توجد صلاحيات محددة</p>
+            @endif
+        </div>
+        @endif
 
         <!-- Wallet Transactions -->
         <div class="bg-white rounded-xl shadow-sm p-6">

@@ -204,12 +204,12 @@ class DesignService
                 $this->handleImages($design, $data['images']);
             }
 
-            Log::info('Design created', [
-                'design_id' => $design->id,
-                'user_id' => $userId,
-            ]);
+            $design->load(['images', 'sizes', 'designOptions']);
 
-            return $design->load(['images', 'sizes', 'designOptions']);
+            // إطلاق حدث "تصميم جديد" مرة واحدة فقط من هنا (وليس من الـ Observer) لتفادي إرسال الإشعار مرتين
+            \Illuminate\Support\Facades\Event::dispatch(new \App\Events\Designs\DesignCreated($design));
+
+            return $design;
         });
     }
 
@@ -262,8 +262,19 @@ class DesignService
 
             // حذف جميع الصور
             foreach ($design->images as $image) {
-                if (Storage::exists($image->image_path)) {
-                    Storage::delete($image->image_path);
+                $path = $image->image_path;
+                if (!empty($path) && is_string($path)) {
+                    try {
+                        if (Storage::disk('public')->exists($path)) {
+                            Storage::disk('public')->delete($path);
+                        }
+                    } catch (\Throwable $e) {
+                        Log::warning('Could not delete design image file', [
+                            'design_id' => $design->id,
+                            'image_path' => $path,
+                            'error' => $e->getMessage(),
+                        ]);
+                    }
                 }
                 $image->delete();
             }
@@ -294,8 +305,8 @@ class DesignService
         // حذف الصور القديمة إذا لزم الأمر
         if (!$keepExisting) {
             foreach ($design->images as $oldImage) {
-                if (Storage::exists($oldImage->image_path)) {
-                    Storage::delete($oldImage->image_path);
+                if (Storage::disk('public')->exists($oldImage->image_path)) {
+                    Storage::disk('public')->delete($oldImage->image_path);
                 }
                 $oldImage->delete();
             }

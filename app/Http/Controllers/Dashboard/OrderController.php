@@ -8,6 +8,7 @@ use App\Models\Order;
 use App\Services\OrderService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class OrderController extends Controller
 {
@@ -193,11 +194,26 @@ class OrderController extends Controller
      */
     public function updateStatus(Request $request, Order $order): JsonResponse
     {
-        $this->authorize('update', $order);
+        try {
+            $this->authorize('update', $order);
+        } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'غير مصرح لك بتحديث حالة هذا الطلب',
+            ], 403);
+        }
 
-        $request->validate([
-            'status' => 'required|string|in:' . implode(',', \App\Enums\OrderStatus::values()),
-        ]);
+        try {
+            $validated = $request->validate([
+                'status' => 'required|string|in:' . implode(',', \App\Enums\OrderStatus::values()),
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'البيانات المدخلة غير صحيحة',
+                'errors' => $e->errors(),
+            ], 422);
+        }
 
         try {
             $order = $this->orderService->updateStatus($order, $request->input('status'));

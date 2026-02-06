@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Models\User;
-use App\Enums\RoleEnum;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -34,11 +33,6 @@ class UserService
                   ->orWhere('email', 'like', "%{$search}%")
                   ->orWhere('phone', 'like', "%{$search}%");
             });
-        }
-
-        // فلترة حسب الدور (admin, user, etc.)
-        if (!empty($filters['role'])) {
-            $query->where('role', $filters['role']);
         }
 
         // فلترة حسب حالة النشاط (نشط أو غير نشط)
@@ -106,10 +100,7 @@ class UserService
             // ملاحظة: لا نحتاج لتشفير كلمة المرور يدوياً
             // لأن Laravel يقوم بذلك تلقائياً عند وجود 'hashed' في $casts
 
-            // تعيين الدور الافتراضي إذا لم يتم تحديده
-            if (!isset($data['role'])) {
-                $data['role'] = RoleEnum::USER->value;
-            }
+            // لا يوجد role للمستخدمين العاديين
 
             // تعيين حالة النشاط الافتراضية
             if (!isset($data['is_active'])) {

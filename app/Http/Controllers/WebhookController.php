@@ -9,7 +9,7 @@ use App\Models\Transaction;
 use App\Services\OrderService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use App\Notifications\WalletRecharged;
+use App\Events\Wallet\WalletRecharged;
 
 class WebhookController extends Controller
 {
@@ -103,45 +103,38 @@ class WebhookController extends Controller
                     }
                 } else {
                     // معالجة شحن المحفظة
-                $user = User::find($userId);
-                if ($user) {
-                    // إضافة المبلغ للمحفظة
-                    $user->wallet_balance += $amount;
-                    $user->save();
-
-                    // حفظ سجل المعاملة في جدول transactions
-                    $transaction = Transaction::create([
-                        'user_id' => $userId,
-                        'amount' => $amount,
-                        'type' => 'deposit',
-                        'status' => 'completed',
-                        'stripe_session_id' => $session->id,
-                        'payment_intent' => $session->payment_intent,
-                        'description' => 'شحن المحفظة عبر Stripe',
-                        'metadata' => [
-                            'payment_type' => 'wallet_recharge',
-                        ],
-                    ]);
-
-                    // التحقق من إنشاء المعاملة بنجاح
-                    if (!$transaction || !$transaction->id) {
-                        Log::error("Failed to create transaction for wallet recharge", [
+                    $user = User::find($userId);
+                    if ($user) {
+                        // حفظ سجل المعاملة في جدول transactions أولاً
+                        $transaction = Transaction::create([
                             'user_id' => $userId,
                             'amount' => $amount,
+                            'type' => 'deposit',
+                            'status' => 'completed',
+                            'stripe_session_id' => $session->id,
+                            'payment_intent' => $session->payment_intent,
+                            'description' => 'شحن المحفظة عبر Stripe',
+                            'metadata' => [
+                                'payment_type' => 'wallet_recharge',
+                            ],
                         ]);
-                    }
 
-                    // إرسال إشعار للمستخدم
-                    try {
-                        $user->notify(new WalletRecharged($amount, $transaction->id));
-                    } catch (\Exception $e) {
-                        Log::warning("Failed to send notification: " . $e->getMessage());
-                    }
+                        // التحقق من إنشاء المعاملة بنجاح
+                        if (!$transaction || !$transaction->id) {
+                            Log::error("Failed to create transaction for wallet recharge", [
+                                'user_id' => $userId,
+                                'amount' => $amount,
+                            ]);
+                        } else {
+                            // إضافة المبلغ للمحفظة (سيطلق Event تلقائياً)
+                            $user->addFunds($amount, 'شحن المحفظة عبر Stripe');
 
-                        Log::info("Wallet recharge successful", [
-                            'user_id' => $userId,
-                            'amount' => $amount,
-                        ]);
+                            Log::info("Wallet recharge successful", [
+                                'user_id' => $userId,
+                                'amount' => $amount,
+                                'transaction_id' => $transaction->id,
+                            ]);
+                        }
                     }
                 }
                 break;

@@ -20,8 +20,6 @@ class UserResource extends JsonResource
             'email' => $this->email,
             'phone' => $this->phone,
             'avatar' => $this->avatar ? asset('storage/' . $this->avatar) : null,
-            'role' => $this->role?->value ?? null,
-            'role_label' => $this->role?->label() ?? null,
             'is_active' => $this->is_active,
             'email_verified_at' => $this->email_verified_at?->toDateTimeString(),
             'last_login_at' => $this->last_login_at?->toDateTimeString(),

@@ -1,19 +1,30 @@
 @extends('layouts.admin')
 
-@section('title', 'إدارة الإشعارات')
+@section('title', __('notifications.page_title'))
 
 @section('content')
 
 <!-- Page Header -->
 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
     <div>
-        <h1 class="text-3xl font-bold text-gray-900">إدارة الإشعارات</h1>
-        <p class="text-gray-600 mt-1">إرسال وإدارة الإشعارات للمستخدمين</p>
+        <h1 class="text-3xl font-bold text-gray-900">{{ __('notifications.page_title') }}</h1>
+        <p class="text-gray-600 mt-1">{{ __('notifications.subtitle') }}</p>
     </div>
-    <button onclick="showSendModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-medium transition inline-flex items-center gap-2">
-        <i class="fas fa-paper-plane"></i>
-        <span>إرسال إشعار جديد</span>
-    </button>
+    @if($isSuperAdmin ?? false)
+    <div class="flex gap-3">
+        <form action="{{ route('admin.notifications.test') }}" method="POST" class="inline" onsubmit="return confirm('{{ __('notifications.confirm_send_test') }}');">
+            @csrf
+            <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-lg font-medium transition inline-flex items-center gap-2">
+                <i class="fas fa-vial"></i>
+                <span>{{ __('notifications.send_test') }}</span>
+            </button>
+        </form>
+        <button onclick="showSendModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-medium transition inline-flex items-center gap-2">
+            <i class="fas fa-paper-plane"></i>
+            <span>{{ __('notifications.send_new') }}</span>
+        </button>
+    </div>
+    @endif
 </div>
 
 <!-- Statistics Cards -->
@@ -21,7 +32,7 @@
     <div class="bg-white rounded-lg shadow-sm p-4 border-r-4 border-blue-500">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-sm text-gray-600">إجمالي الإشعارات</p>
+                <p class="text-sm text-gray-600">{{ __('notifications.total') }}</p>
                 <p class="text-2xl font-bold text-gray-900 mt-1">{{ $stats['total'] ?? 0 }}</p>
             </div>
             <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -33,7 +44,7 @@
     <div class="bg-white rounded-lg shadow-sm p-4 border-r-4 border-green-500">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-sm text-gray-600">المقروءة</p>
+                <p class="text-sm text-gray-600">{{ __('notifications.read') }}</p>
                 <p class="text-2xl font-bold text-gray-900 mt-1">{{ $stats['read'] ?? 0 }}</p>
             </div>
             <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
@@ -45,7 +56,7 @@
     <div class="bg-white rounded-lg shadow-sm p-4 border-r-4 border-yellow-500">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-sm text-gray-600">غير المقروءة</p>
+                <p class="text-sm text-gray-600">{{ __('notifications.unread') }}</p>
                 <p class="text-2xl font-bold text-gray-900 mt-1">{{ $stats['unread'] ?? 0 }}</p>
             </div>
             <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
@@ -57,7 +68,7 @@
     <div class="bg-white rounded-lg shadow-sm p-4 border-r-4 border-purple-500">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-sm text-gray-600">اليوم</p>
+                <p class="text-sm text-gray-600">{{ __('notifications.today') }}</p>
                 <p class="text-2xl font-bold text-gray-900 mt-1">{{ $stats['today'] ?? 0 }}</p>
             </div>
             <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
@@ -73,13 +84,13 @@
         
         <!-- Search -->
         <div class="md:col-span-2">
-            <label class="block text-sm font-medium text-gray-700 mb-2">بحث</label>
+            <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('common.search') }}</label>
             <div class="relative">
                 <input 
                     type="text" 
                     name="search" 
                     value="{{ request('search') }}"
-                    placeholder="ابحث في الإشعارات..."
+                    placeholder="{{ __('notifications.search_placeholder') }}"
                     class="w-full pr-10 pl-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 >
                 <i class="fas fa-search absolute right-3 top-3 text-gray-400"></i>
@@ -88,33 +99,34 @@
 
         <!-- Status Filter -->
         <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">الحالة</label>
+            <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('common.status') }}</label>
             <select name="status" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                <option value="">جميع الحالات</option>
-                <option value="read" {{ request('status') === 'read' ? 'selected' : '' }}>مقروء</option>
-                <option value="unread" {{ request('status') === 'unread' ? 'selected' : '' }}>غير مقروء</option>
+                <option value="">{{ __('notifications.all_statuses') }}</option>
+                <option value="read" {{ request('status') === 'read' ? 'selected' : '' }}>{{ __('notifications.status_read') }}</option>
+                <option value="unread" {{ request('status') === 'unread' ? 'selected' : '' }}>{{ __('notifications.status_unread') }}</option>
             </select>
         </div>
 
         <!-- Type Filter -->
         <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">النوع</label>
+            <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('notifications.type') }}</label>
             <select name="type" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                <option value="">جميع الأنواع</option>
-                <option value="order" {{ request('type') === 'order' ? 'selected' : '' }}>طلب</option>
-                <option value="system" {{ request('type') === 'system' ? 'selected' : '' }}>نظام</option>
-                <option value="promotion" {{ request('type') === 'promotion' ? 'selected' : '' }}>عرض</option>
+                <option value="">{{ __('notifications.all_types') }}</option>
+                <option value="order" {{ request('type') === 'order' ? 'selected' : '' }}>{{ __('notifications.type_order') }}</option>
+                <option value="system" {{ request('type') === 'system' ? 'selected' : '' }}>{{ __('notifications.type_system') }}</option>
+                <option value="design_created" {{ request('type') === 'design_created' ? 'selected' : '' }}>{{ __('notifications.type_design_created') }}</option>
+                <option value="promotion" {{ request('type') === 'promotion' ? 'selected' : '' }}>{{ __('notifications.type_promotion') }}</option>
             </select>
         </div>
 
         <div class="md:col-span-4 flex gap-2">
             <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg font-medium transition">
                 <i class="fas fa-filter ml-2"></i>
-                تطبيق الفلاتر
+                {{ __('notifications.apply_filters') }}
             </button>
             <a href="{{ route('admin.notifications.index') }}" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-2 rounded-lg font-medium transition">
                 <i class="fas fa-redo ml-2"></i>
-                إعادة تعيين
+                {{ __('common.reset') }}
             </a>
         </div>
     </form>
@@ -130,15 +142,16 @@
                 <div class="w-12 h-12 rounded-full flex items-center justify-center
                     @if($notification->type === 'order') bg-blue-100
                     @elseif($notification->type === 'system') bg-purple-100
+                    @elseif($notification->type === 'design_created') bg-indigo-100
                     @else bg-orange-100
                     @endif
                 ">
-                    <i class="fas 
+                    <i class="fas text-xl
                         @if($notification->type === 'order') fa-shopping-cart text-blue-600
                         @elseif($notification->type === 'system') fa-cog text-purple-600
+                        @elseif($notification->type === 'design_created') fa-palette text-indigo-600
                         @else fa-bullhorn text-orange-600
                         @endif
-                        text-xl
                     "></i>
                 </div>
             </div>
@@ -151,7 +164,7 @@
                         @if(!$notification->read_at)
                         <span class="inline-block px-2 py-1 bg-red-100 text-red-600 text-xs rounded-full mt-1">
                             <i class="fas fa-circle text-xs ml-1"></i>
-                            جديد
+                            {{ __('notifications.new_badge') }}
                         </span>
                         @endif
                     </div>
@@ -163,36 +176,18 @@
                 <p class="text-gray-700 mb-4">{{ $notification->message }}</p>
 
                 <div class="flex items-center justify-between">
-                    <!-- User Info -->
-                    @if($notification->user)
-                    <div class="flex items-center gap-2 text-sm text-gray-600">
-                        @if($notification->user->profile_image)
-                            <img src="{{ Storage::url($notification->user->profile_image) }}" alt="{{ $notification->user->name }}" class="w-6 h-6 rounded-full object-cover">
-                        @else
-                            <div class="w-6 h-6 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold">
-                                {{ substr($notification->user->name, 0, 1) }}
-                            </div>
-                        @endif
-                        <span>{{ $notification->user->name }}</span>
-                    </div>
-                    @else
-                    <div class="flex items-center gap-2 text-sm text-gray-600">
-                        <i class="fas fa-users"></i>
-                        <span>إشعار جماعي</span>
-                    </div>
-                    @endif
-
+                    <div></div>
                     <!-- Actions -->
                     <div class="flex items-center gap-2">
                         @if(!$notification->read_at)
-                        <button onclick="markAsRead({{ $notification->id }})" class="text-green-600 hover:text-green-900 text-sm">
+                        <button onclick="markAsRead('{{ $notification->id }}')" class="text-green-600 hover:text-green-900 text-sm">
                             <i class="fas fa-check ml-1"></i>
-                            تعليم كمقروء
+                            {{ __('common.mark_read') }}
                         </button>
                         @endif
-                        <button onclick="deleteNotification({{ $notification->id }})" class="text-red-600 hover:text-red-900 text-sm">
+                        <button onclick="deleteNotification('{{ $notification->id }}')" class="text-red-600 hover:text-red-900 text-sm">
                             <i class="fas fa-trash ml-1"></i>
-                            حذف
+                            {{ __('common.delete') }}
                         </button>
                     </div>
                 </div>
@@ -202,12 +197,14 @@
     @empty
     <div class="bg-white rounded-xl shadow-sm p-12 text-center">
         <i class="fas fa-bell-slash text-6xl text-gray-300 mb-4"></i>
-        <h3 class="text-xl font-bold text-gray-900 mb-2">لا توجد إشعارات</h3>
-        <p class="text-gray-600 mb-6">ابدأ بإرسال إشعار جديد للمستخدمين</p>
+        <h3 class="text-xl font-bold text-gray-900 mb-2">{{ __('common.no_notifications') }}</h3>
+        <p class="text-gray-600 mb-6">{{ __('notifications.no_notifications_subtitle') }}</p>
+        @if($isSuperAdmin ?? false)
         <button onclick="showSendModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-medium transition inline-flex items-center gap-2">
             <i class="fas fa-paper-plane"></i>
-            <span>إرسال إشعار جديد</span>
+            <span>{{ __('notifications.send_new') }}</span>
         </button>
+        @endif
     </div>
     @endforelse
 </div>
@@ -223,7 +220,7 @@
 <div id="sendModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-xl max-w-2xl w-full p-6">
         <div class="flex items-center justify-between mb-6">
-            <h2 class="text-2xl font-bold text-gray-900">إرسال إشعار جديد</h2>
+            <h2 class="text-2xl font-bold text-gray-900">{{ __('notifications.modal_title') }}</h2>
             <button onclick="closeSendModal()" class="text-gray-400 hover:text-gray-600">
                 <i class="fas fa-times text-2xl"></i>
             </button>
@@ -235,37 +232,40 @@
             <div class="space-y-4">
                 <!-- Recipient Type -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">المرسل إليه</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('notifications.recipient') }}</label>
                     <select name="recipient_type" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" onchange="toggleUserSelect(this.value)">
-                        <option value="all">جميع المستخدمين</option>
-                        <option value="specific">مستخدم محدد</option>
+                        <option value="all">{{ __('notifications.all_users') }}</option>
+                        <option value="specific">{{ __('notifications.specific_user') }}</option>
                     </select>
                 </div>
 
                 <!-- Specific User (Hidden by default) -->
                 <div id="userSelect" class="hidden">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">اختر المستخدم</label>
-                    <input 
-                        type="number" 
-                        name="user_id" 
-                        placeholder="رقم المستخدم"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                    >
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('notifications.choose_user') }}</label>
+                    <select name="user_id" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        <option value="">{{ __('notifications.choose_user_placeholder') }}</option>
+                        @foreach($usersForSelect ?? [] as $u)
+                            <option value="{{ $u->id }}" {{ old('user_id') == $u->id ? 'selected' : '' }}>{{ $u->name }} ({{ $u->email }})</option>
+                        @endforeach
+                    </select>
+                    @if(empty($usersForSelect) || $usersForSelect->isEmpty())
+                        <p class="text-amber-600 text-sm mt-1">{{ __('notifications.no_active_users') }}</p>
+                    @endif
                 </div>
 
                 <!-- Type -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">النوع</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('notifications.type') }}</label>
                     <select name="type" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                        <option value="system">نظام</option>
-                        <option value="order">طلب</option>
-                        <option value="promotion">عرض</option>
+                        <option value="system">{{ __('notifications.type_system') }}</option>
+                        <option value="order">{{ __('notifications.type_order') }}</option>
+                        <option value="promotion">{{ __('notifications.type_promotion') }}</option>
                     </select>
                 </div>
 
                 <!-- Title -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">العنوان</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('notifications.title_label') }}</label>
                     <input 
                         type="text" 
                         name="title" 
@@ -276,7 +276,7 @@
 
                 <!-- Message -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">الرسالة</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('notifications.message_label') }}</label>
                     <textarea 
                         name="message" 
                         rows="4"
@@ -289,10 +289,10 @@
             <div class="flex gap-2 mt-6">
                 <button type="submit" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-medium transition">
                     <i class="fas fa-paper-plane ml-2"></i>
-                    إرسال الإشعار
+                    {{ __('notifications.send_submit') }}
                 </button>
                 <button type="button" onclick="closeSendModal()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-3 rounded-lg font-medium transition">
-                    إلغاء
+                    {{ __('common.cancel') }}
                 </button>
             </div>
         </form>
@@ -321,7 +321,7 @@ function toggleUserSelect(value) {
 }
 
 function markAsRead(notificationId) {
-    fetch(`/admin/notifications/${notificationId}/mark-read`, {
+    fetch(`/admin/notifications/${encodeURIComponent(notificationId)}/mark-read`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
@@ -340,11 +340,11 @@ function markAsRead(notificationId) {
 }
 
 function deleteNotification(notificationId) {
-    if (!confirm('هل أنت متأكد من حذف هذا الإشعار؟')) {
+    if (!confirm('{{ __("notifications.confirm_delete_notification") }}')) {
         return;
     }
 
-    fetch(`/admin/notifications/${notificationId}`, {
+    fetch(`/admin/notifications/${encodeURIComponent(notificationId)}`, {
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json',
@@ -356,11 +356,11 @@ function deleteNotification(notificationId) {
         if (data.success) {
             window.location.reload();
         } else {
-            alert(data.message || 'حدث خطأ');
+            alert(data.message || '{{ __("notifications.error_occurred") }}');
         }
     })
     .catch(error => {
-        alert('حدث خطأ');
+        alert('{{ __("notifications.error_occurred") }}');
         console.error('Error:', error);
     });
 }

@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Builder;
 
 class Order extends Model
@@ -18,10 +19,12 @@ class Order extends Model
         'location_id',
         'coupon_id',
         'total_amount',
+        'payment_method',
         'subtotal',
         'discount_amount',
         'status',
         'notes',
+        'order_number',
     ];
 
     protected $casts = [
@@ -56,6 +59,16 @@ class Order extends Model
         return $this->belongsTo(Coupon::class);
     }
 
+    public function invoice(): HasOne
+    {
+        return $this->hasOne(Invoice::class);
+    }
+
+    public function review(): HasOne
+    {
+        return $this->hasOne(Review::class);
+    }
+
     /**
      * Query Scopes
      */
@@ -68,7 +81,8 @@ class Order extends Model
         }
 
         return $query->where(function ($q) use ($search) {
-            $q->where('id', 'like', "%{$search}%")
+            $q->where('order_number', 'like', "%{$search}%")
+              ->orWhere('id', 'like', "%{$search}%")
               ->orWhereHas('user', function ($userQuery) use ($search) {
                   $userQuery->where('name', 'like', "%{$search}%")
                            ->orWhere('email', 'like', "%{$search}%");
@@ -150,13 +164,11 @@ class Order extends Model
     }
     
     /**
-     * Accessor للحصول على طريقة الدفع (مؤقت - حتى إضافة الحقل في قاعدة البيانات)
+     * Allowed payment methods per spec: cash, wallet, card
      */
-    public function getPaymentMethodAttribute(): string
+    public static function paymentMethods(): array
     {
-        // يمكن إضافة logic هنا لتحديد طريقة الدفع من transactions أو wallet
-        // حالياً نرجع قيمة افتراضية
-        return 'cash'; // القيمة الافتراضية
+        return ['cash', 'wallet', 'card'];
     }
 
     /**
@@ -181,5 +193,36 @@ class Order extends Model
         return $this->status instanceof OrderStatus 
             ? $this->status->isCancelled() 
             : false;
+    }
+
+    /**
+     * إنشاء رقم طلب فريد
+     * رقم عشوائي بين 0 و 10000
+     */
+    public static function generateOrderNumber(?int $orderId = null): string
+    {
+        do {
+            // إنشاء رقم عشوائي بين 0 و 10000
+            $orderNumber = (string) random_int(0, 10000);
+            
+            // التحقق من عدم التكرار
+            $exists = self::where('order_number', $orderNumber)->exists();
+        } while ($exists);
+
+        return $orderNumber;
+    }
+
+    /**
+     * Boot method - إنشاء order_number تلقائياً عند إنشاء الطلب
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($order) {
+            if (!$order->order_number) {
+                $order->order_number = self::generateOrderNumber();
+            }
+        });
     }
 }

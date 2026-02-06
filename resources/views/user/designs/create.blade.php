@@ -1,13 +1,13 @@
 @extends('layouts.user')
 
-@section('title', 'إنشاء تصميم جديد')
+@section('title', __('designs.create_title'))
 
 @section('content')
 
 <!-- Page Header -->
 <div class="mb-6">
-    <h1 class="text-3xl font-bold text-gray-900">إنشاء تصميم جديد</h1>
-    <p class="text-gray-600 mt-1">قم بملء النموذج أدناه لإنشاء تصميم جديد</p>
+    <h1 class="text-3xl font-bold text-gray-900">{{ __('designs.create_title') }}</h1>
+    <p class="text-gray-600 mt-1">{{ __('designs.create_subtitle') }}</p>
 </div>
 
 <!-- Form -->
@@ -20,13 +20,13 @@
         <div class="lg:col-span-2">
             <div class="bg-white rounded-xl shadow-sm p-6 space-y-6">
                 
-                <h2 class="text-xl font-bold text-gray-800 border-b pb-3">المعلومات الأساسية</h2>
+                <h2 class="text-xl font-bold text-gray-800 border-b pb-3">{{ __('designs.basic_info') }}</h2>
 
                 <!-- Name (EN/AR) -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label for="name_en" class="block text-sm font-medium text-gray-700 mb-2">
-                            الاسم (الإنجليزية) <span class="text-red-500">*</span>
+                            {{ __('common.name_english') }} <span class="text-red-500">*</span>
                         </label>
                         <input 
                             type="text" 
@@ -42,7 +42,7 @@
                     </div>
                     <div>
                         <label for="name_ar" class="block text-sm font-medium text-gray-700 mb-2">
-                            الاسم (العربية) <span class="text-red-500">*</span>
+                            {{ __('common.name_arabic') }} <span class="text-red-500">*</span>
                         </label>
                         <input 
                             type="text" 
@@ -62,7 +62,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label for="description_en" class="block text-sm font-medium text-gray-700 mb-2">
-                            الوصف (الإنجليزية) <span class="text-red-500">*</span>
+                            {{ __('common.description_english') }} <span class="text-red-500">*</span>
                         </label>
                         <textarea 
                             name="description[en]" 
@@ -77,7 +77,7 @@
                     </div>
                     <div>
                         <label for="description_ar" class="block text-sm font-medium text-gray-700 mb-2">
-                            الوصف (العربية) <span class="text-red-500">*</span>
+                            {{ __('common.description_arabic') }} <span class="text-red-500">*</span>
                         </label>
                         <textarea 
                             name="description[ar]" 
@@ -95,7 +95,7 @@
                 <!-- Price -->
                 <div>
                     <label for="price" class="block text-sm font-medium text-gray-700 mb-2">
-                        السعر (ر.س) <span class="text-red-500">*</span>
+                        {{ __('common.price_currency') }} <span class="text-red-500">*</span>
                     </label>
                     <input 
                         type="number" 
@@ -115,7 +115,7 @@
                 <!-- Images -->
                 <div>
                     <label for="images" class="block text-sm font-medium text-gray-700 mb-2">
-                        الصور <span class="text-red-500">*</span> <span class="text-gray-500 text-xs">(صورة واحدة على الأقل)</span>
+                        {{ __('designs.images') }} <span class="text-red-500">*</span> <span class="text-gray-500 text-xs">{{ __('designs.at_least_one') }}</span>
                     </label>
                     <input 
                         type="file" 
@@ -139,7 +139,7 @@
                 <!-- Sizes -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">
-                        المقاسات المتاحة <span class="text-red-500">*</span> <span class="text-gray-500 text-xs">(مقاس واحد على الأقل)</span>
+                        {{ __('designs.available_sizes_label') }} <span class="text-red-500">*</span> <span class="text-gray-500 text-xs">{{ __('designs.at_least_one_size') }}</span>
                     </label>
                     <div class="grid grid-cols-3 md:grid-cols-6 gap-3">
                         @foreach($sizes as $size)
@@ -163,7 +163,7 @@
                 <!-- Design Options -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">
-                        خيارات التصميم <span class="text-gray-500 text-xs">(اختياري)</span>
+                        {{ __('designs.design_options_label') }} <span class="text-gray-500 text-xs">{{ __('designs.optional') }}</span>
                     </label>
                     @foreach($designOptions as $type => $group)
                         @if($group['options']->count() > 0)
@@ -179,7 +179,7 @@
                                                 {{ in_array($option->id, old('design_option_ids', [])) ? 'checked' : '' }}
                                                 class="ml-2 w-4 h-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
                                             >
-                                            <span class="text-sm">{{ $option->getTranslation('name', 'ar') }}</span>
+                                            <span class="text-sm">{{ $option->getTranslation('name', app()->getLocale(), true) ?: $option->getTranslation('name', app()->getLocale() === 'ar' ? 'en' : 'ar', true) }}</span>
                                         </label>
                                     @endforeach
                                 </div>
@@ -199,7 +199,7 @@
                         class="ml-2 w-4 h-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
                     >
                     <label for="is_active" class="text-sm font-medium text-gray-700">
-                        تفعيل التصميم (سيظهر للآخرين)
+                        {{ __('designs.activate_design') }}
                     </label>
                 </div>
             </div>
@@ -208,33 +208,33 @@
         <!-- Sidebar -->
         <div class="lg:col-span-1">
             <div class="bg-white rounded-xl shadow-sm p-6 space-y-4 sticky top-4">
-                <h3 class="text-lg font-bold text-gray-800 border-b pb-3">إرشادات</h3>
+                <h3 class="text-lg font-bold text-gray-800 border-b pb-3">{{ __('designs.guidelines') }}</h3>
                 <ul class="space-y-2 text-sm text-gray-600">
                     <li class="flex items-start gap-2">
                         <i class="fas fa-check-circle text-green-500 mt-1"></i>
-                        <span>يجب إدخال الاسم والوصف باللغتين العربية والإنجليزية</span>
+                        <span>{{ __('designs.guideline_create_1') }}</span>
                     </li>
                     <li class="flex items-start gap-2">
                         <i class="fas fa-check-circle text-green-500 mt-1"></i>
-                        <span>يجب رفع صورة واحدة على الأقل</span>
+                        <span>{{ __('designs.guideline_create_2') }}</span>
                     </li>
                     <li class="flex items-start gap-2">
                         <i class="fas fa-check-circle text-green-500 mt-1"></i>
-                        <span>يجب اختيار مقاس واحد على الأقل</span>
+                        <span>{{ __('designs.guideline_create_3') }}</span>
                     </li>
                     <li class="flex items-start gap-2">
                         <i class="fas fa-info-circle text-blue-500 mt-1"></i>
-                        <span>خيارات التصميم اختيارية ويمكن اختيار عدة خيارات</span>
+                        <span>{{ __('designs.guideline_create_4') }}</span>
                     </li>
                 </ul>
 
                 <div class="pt-4 border-t">
                     <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-medium transition">
                         <i class="fas fa-save ml-2"></i>
-                        حفظ التصميم
+                        {{ __('designs.save_design') }}
                     </button>
                     <a href="{{ route('my-designs.index') }}" class="block mt-2 text-center text-gray-600 hover:text-gray-800 text-sm">
-                        إلغاء
+                        {{ __('common.cancel') }}
                     </a>
                 </div>
             </div>

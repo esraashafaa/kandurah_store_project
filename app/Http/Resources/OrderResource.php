@@ -11,28 +11,32 @@ class OrderResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'order_number' => '#' . str_pad($this->id, 6, '0', STR_PAD_LEFT),
+            'order_number' => $this->order_number ?? \App\Models\Order::generateOrderNumber(),
             
             // معلومات المستخدم
-            'user' => [
-                'id' => $this->user->id,
-                'name' => $this->user->name,
-                'email' => $this->user->email,
-            ],
+            'user' => $this->whenLoaded('user', function () {
+                return [
+                    'id' => $this->user->id,
+                    'name' => $this->user->name,
+                    'email' => $this->user->email,
+                ];
+            }),
             
             // عنوان الشحن
-            'location' => [
-                'id' => $this->location->id,
-                'city' => $this->location->city,
-                'area' => $this->location->area,
-                'street' => $this->location->street,
-                'house_number' => $this->location->house_number,
-                'full_address' => $this->location->full_address,
-            ],
+            'location' => $this->whenLoaded('location', function () {
+                return [
+                    'id' => $this->location->id,
+                    'city' => $this->location->city,
+                    'area' => $this->location->area,
+                    'street' => $this->location->street,
+                    'house_number' => $this->location->house_number,
+                    'full_address' => $this->location->full_address,
+                ];
+            }),
             
             // عناصر الطلب
             'items' => OrderItemResource::collection($this->whenLoaded('items')),
-            'items_count' => $this->items->count(),
+            'items_count' => $this->whenLoaded('items', fn() => $this->items->count()) ?? 0,
             
             // المبالغ
             'total_amount' => (float) $this->total_amount,

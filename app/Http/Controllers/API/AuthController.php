@@ -7,9 +7,12 @@ use App\Services\AuthService;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
+use App\Traits\ApiResponseTrait;
 
 class AuthController extends Controller
 {
+    use ApiResponseTrait;
+
     public function __construct(
         private AuthService $authService
     ) {}
@@ -18,29 +21,26 @@ class AuthController extends Controller
     {
         $result = $this->authService->register($request->validated());
 
-        return response()->json([
+        return $this->successResponse([
             'user' => $result['user'],
             'token' => $result['token'],
-        ], 201);
+        ], 'Registration completed successfully', 201);
     }
 
     public function login(LoginRequest $request)
     {
-        // استخدام API guard للـ API login
         $result = $this->authService->login($request->validated(), 'api');
 
-        return response()->json([
+        return $this->successResponse([
             'user' => $result['user'],
             'token' => $result['token'],
-        ]);
+        ], 'Login successful');
     }
 
     public function logout()
     {
         $this->authService->logout(auth()->user());
 
-        return response()->json([
-            'message' => 'Logged out successfully'
-        ]);
+        return $this->successResponse(null, 'Logged out successfully');
     }
 }

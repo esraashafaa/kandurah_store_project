@@ -185,7 +185,7 @@ class PaymentController extends Controller
         $user = $request->user();
 
         // التحقق من أن المستخدم ليس أدمن
-        if (in_array($user->role, ['admin', 'super_admin'])) {
+        if ($user instanceof \App\Models\Admin) {
             return response()->json([
                 'success' => false,
                 'message' => 'الأدمن لا يمكنه الدفع. الدفع متاح للمستخدمين فقط.',

@@ -2,9 +2,10 @@
 
 namespace App\Http\Middleware;
 
-use App\Enums\RoleEnum;
+use App\Models\Admin;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 class EnsureUserIsAdmin
@@ -16,16 +17,25 @@ class EnsureUserIsAdmin
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $user = $request->user();
-
-        // التحقق من وجود مستخدم مسجل دخول
-        if (!$user) {
-            return redirect()->route('login');
+        $admin = null;
+        
+        // التحقق من تسجيل الدخول كـ Admin أولاً
+        if (auth()->guard('admin')->check()) {
+            $admin = auth()->guard('admin')->user();
+        }
+        // التحقق من تسجيل الدخول في guard الافتراضي
+        else if ($request->user() instanceof Admin) {
+            $admin = $request->user();
         }
 
-        // التحقق من أن المستخدم لديه صلاحية Admin أو Super Admin
-        if (!in_array($user->role, [RoleEnum::ADMIN, RoleEnum::SUPER_ADMIN])) {
-            abort(403, 'Unauthorized access. Admin privileges required.');
+        // التحقق من وجود مستخدم مسجل دخول
+        if (!$admin) {
+            return redirect()->route('login');
+        }
+        
+        // تعيين Admin في guard الافتراضي أيضاً حتى يعمل auth()->user() في views و controllers
+        if (!Auth::guard('web')->check() || Auth::guard('web')->user() !== $admin) {
+            Auth::guard('web')->setUser($admin);
         }
 
         return $next($request);

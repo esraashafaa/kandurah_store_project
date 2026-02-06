@@ -175,7 +175,7 @@ class DesignOptionController extends Controller
     private function isAdmin(Request $request): bool
     {
         $user = $request->user();
-        return $user && in_array($user->role, [RoleEnum::ADMIN, RoleEnum::SUPER_ADMIN]);
+        return $user instanceof \App\Models\Admin;
     }
 
     /**

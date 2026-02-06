@@ -259,6 +259,6 @@ class DesignController extends Controller
      */
     private function isAdmin($user): bool
     {
-        return $user && in_array($user->role, [RoleEnum::ADMIN, RoleEnum::SUPER_ADMIN]);
+        return $user instanceof \App\Models\Admin;
     }
 }

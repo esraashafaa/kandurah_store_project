@@ -2,7 +2,7 @@
 
 namespace App\Policies;
 
-use App\Enums\RoleEnum;
+use App\Models\Admin;
 use App\Models\Design;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
@@ -12,9 +12,9 @@ class DesignPolicy
     /**
      * قبل كل الفحوصات - الأدمن له صلاحية كاملة
      */
-    public function before(User $user, string $ability): ?bool
+    public function before($user, string $ability): ?bool
     {
-        if (in_array($user->role, [RoleEnum::ADMIN, RoleEnum::SUPER_ADMIN])) {
+        if ($user instanceof Admin) {
             return true;
         }
 
@@ -25,7 +25,7 @@ class DesignPolicy
      * Determine whether the user can view any models.
      * أي مستخدم مسجل يمكنه عرض قائمة التصاميم
      */
-    public function viewAny(User $user): bool
+    public function viewAny($user): bool
     {
         return true;
     }
@@ -35,7 +35,7 @@ class DesignPolicy
      * أي مستخدم يمكنه عرض التصميم (للتصاميم النشطة)
      * أو صاحب التصميم (للتصاميم غير النشطة)
      */
-    public function view(?User $user, Design $design): bool
+    public function view($user, Design $design): bool
     {
         // التصاميم النشطة يمكن لأي أحد مشاهدتها
         if ($design->is_active) {
@@ -43,50 +43,63 @@ class DesignPolicy
         }
 
         // التصاميم غير النشطة يمكن لصاحبها فقط مشاهدتها
-        return $user && $user->id === $design->user_id;
+        if ($user instanceof User) {
+            return $user->id === $design->user_id;
+        }
+
+        return false;
     }
 
     /**
      * Determine whether the user can create models.
      * أي مستخدم مسجل يمكنه إنشاء تصميم
      */
-    public function create(User $user): bool
+    public function create($user): bool
     {
-        return $user->role === RoleEnum::USER;
+        return $user instanceof User;
     }
 
     /**
      * Determine whether the user can update the model.
      * فقط صاحب التصميم يمكنه التعديل
      */
-    public function update(User $user, Design $design): bool
+    public function update($user, Design $design): bool
     {
-        return $user->id === $design->user_id;
+        if ($user instanceof User) {
+            return $user->id === $design->user_id;
+        }
+        return false;
     }
 
     /**
      * Determine whether the user can delete the model.
      * فقط صاحب التصميم يمكنه الحذف
      */
-    public function delete(User $user, Design $design): bool
+    public function delete($user, Design $design): bool
     {
-        return $user->id === $design->user_id;
+        if ($user instanceof User) {
+            return $user->id === $design->user_id;
+        }
+        return false;
     }
 
     /**
      * Determine whether the user can restore the model.
      * فقط صاحب التصميم أو الأدمن
      */
-    public function restore(User $user, Design $design): bool
+    public function restore($user, Design $design): bool
     {
-        return $user->id === $design->user_id;
+        if ($user instanceof User) {
+            return $user->id === $design->user_id;
+        }
+        return false;
     }
 
     /**
      * Determine whether the user can permanently delete the model.
      * فقط الأدمن (تم التحقق في before())
      */
-    public function forceDelete(User $user, Design $design): bool
+    public function forceDelete($user, Design $design): bool
     {
         return false; // سيتم السماح للأدمن في before()
     }

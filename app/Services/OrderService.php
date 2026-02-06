@@ -272,8 +272,14 @@ class OrderService
     public function updateStatus(Order $order, string|\App\Enums\OrderStatus $newStatus): Order
     {
         // تحويل string إلى OrderStatus إذا لزم الأمر
+        // إذا كان $newStatus هو OrderStatus enum بالفعل، نتركه كما هو
         if (is_string($newStatus)) {
             $newStatus = \App\Enums\OrderStatus::from($newStatus);
+        }
+        
+        // التأكد من أن $newStatus هو OrderStatus enum
+        if (!$newStatus instanceof \App\Enums\OrderStatus) {
+            throw new \Exception('حالة الطلب غير صحيحة');
         }
 
         // التحقق من إمكانية الانتقال
@@ -282,7 +288,9 @@ class OrderService
         }
 
         $oldStatus = $order->status;
-        $order->update(['status' => $newStatus]);
+        // تحديث الحالة باستخدام save() لضمان أن Observer يعمل بشكل صحيح
+        $order->status = $newStatus;
+        $order->save();
 
         Log::info('Order status updated', [
             'order_id' => $order->id,
@@ -290,7 +298,8 @@ class OrderService
             'new_status' => $newStatus->value,
         ]);
 
-        return $order->fresh();
+        // تحميل العلاقات المطلوبة قبل الإرجاع
+        return $order->fresh()->load(['user', 'location', 'items']);
     }
 
     /**
@@ -318,6 +327,7 @@ class OrderService
     ) {
         return Order::where('user_id', $userId)
             ->with(['items.design.images', 'location'])
+            ->withCount('items')
             ->search($search)
             ->status($status)
             ->sort($sortBy, $sortDir)
@@ -339,7 +349,8 @@ class OrderService
         ?string $sortDir = null,
         int $perPage = 15
     ) {
-        return Order::with(['user', 'items.design.images', 'location'])
+        return Order::with(['user', 'items.design.images', 'location', 'invoice'])
+            ->withCount('items')
             ->search($search)
             ->status($status)
             ->forUser($userId)

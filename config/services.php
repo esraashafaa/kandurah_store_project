@@ -41,4 +41,19 @@ return [
         'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
     ],
 
+    'firebase' => [
+        // مسار ملف Service Account من Firebase (أي اسم للملف). إن كان نسبياً يُحسب من storage/app
+        'credentials_path' => (function () {
+            $path = env('FIREBASE_CREDENTIALS_PATH', storage_path('app/firebase-credentials.json'));
+            if ($path && !realpath($path) && !str_contains($path, DIRECTORY_SEPARATOR) === false) {
+                $fromStorage = storage_path('app/' . basename($path));
+                if (file_exists($fromStorage)) {
+                    return $fromStorage;
+                }
+            }
+            return $path;
+        })(),
+        'project_id' => env('FIREBASE_PROJECT_ID', 'kandoura-f5fb2'),
+    ],
+
 ];

@@ -43,12 +43,11 @@ class DesignImage extends Model
     }
 
     /**
-     * الحصول على الرابط الكامل للصورة
+     * الحصول على رابط الصورة (نسبي ليعمل من أي عنوان يفتح منه الموقع)
      */
     public function getImageUrlAttribute(): string
     {
-        // استخدام public disk لأن الصور محفوظة في storage/app/public/designs
-        return Storage::disk('public')->url($this->image_path);
+        return '/storage/' . ltrim($this->image_path, '/');
     }
 
     /**
@@ -75,8 +74,17 @@ class DesignImage extends Model
         parent::boot();
 
         static::deleting(function ($image) {
-            if (Storage::exists($image->image_path)) {
-                Storage::delete($image->image_path);
+            $path = $image->image_path;
+            if (empty($path) || !is_string($path)) {
+                return;
+            }
+            try {
+                if (Storage::disk('public')->exists($path)) {
+                    Storage::disk('public')->delete($path);
+                }
+            } catch (\Throwable $e) {
+                // لا نوقف الحذف إذا فشل حذف الملف
+                report($e);
             }
         });
     }

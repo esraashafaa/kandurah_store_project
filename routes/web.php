@@ -8,15 +8,38 @@ use App\Http\Controllers\Dashboard\DesignController;
 use App\Http\Controllers\Dashboard\DesignOptionController;
 use App\Http\Controllers\StripeController;
 use App\Http\Controllers\WebhookController;
+use App\Http\Controllers\LanguageController;
 use App\Enums\OrderStatus;
 
 Route::get('/', function () {
     return view('welcome');
 });
 
+// خدمة صور التصاميم من التخزين (يعمل حتى لو الرابط الرمزي لا يعمل على Windows)
+Route::get('storage/designs/{filename}', function (string $filename) {
+    $path = 'designs/' . $filename;
+    if (!Storage::disk('public')->exists($path)) {
+        abort(404);
+    }
+    $fullPath = Storage::disk('public')->path($path);
+    $mime = match (strtolower(pathinfo($filename, PATHINFO_EXTENSION))) {
+        'jpg', 'jpeg' => 'image/jpeg',
+        'png' => 'image/png',
+        'gif' => 'image/gif',
+        'webp' => 'image/webp',
+        default => 'application/octet-stream',
+    };
+    return response()->file($fullPath, ['Content-Type' => $mime]);
+})->where('filename', '[a-zA-Z0-9_.-]+')->name('storage.designs');
+
+// Language Switcher - تبديل اللغة
+Route::get('/language/{locale}', [LanguageController::class, 'switch'])
+    ->name('language.switch')
+    ->where('locale', 'en|ar');
+
 // Admin Dashboard - الصفحة الرئيسية للوحة التحكم
 Route::get('/dashboard', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])
-    ->middleware(['auth', 'verified'])
+    ->middleware(['admin'])
     ->name('dashboard');
 
 Route::middleware('auth')->group(function () {
@@ -42,6 +65,13 @@ Route::middleware('auth')->group(function () {
     Route::prefix('designs')->name('designs.')->group(function () {
         Route::get('/browse', [\App\Http\Controllers\User\DesignController::class, 'browse'])->name('browse');
     });
+
+    // إشعارات المستخدم (إشعاراتي فقط)
+    Route::prefix('my/notifications')->name('my.notifications.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\User\NotificationController::class, 'index'])->name('index');
+        Route::put('/{id}/mark-read', [\App\Http\Controllers\User\NotificationController::class, 'markAsRead'])->name('mark-read');
+        Route::delete('/{id}', [\App\Http\Controllers\User\NotificationController::class, 'destroy'])->name('destroy');
+    });
 });
 
 require __DIR__.'/auth.php';
@@ -51,7 +81,7 @@ require __DIR__.'/auth.php';
 // ═══════════════════════════════════════════════════════
 
 Route::prefix('admin')
-     ->middleware(['auth', 'admin'])
+     ->middleware(['admin'])
      ->name('admin.')
      ->group(function () {
     
@@ -70,11 +100,6 @@ Route::prefix('admin')
                 });
             }
             
-            // فلترة حسب الدور
-            if (request()->has('role') && request('role')) {
-                $query->where('role', request('role'));
-            }
-            
             // فلترة حسب الحالة
             if (request()->has('status') && request('status')) {
                 if (request('status') === 'active') {
@@ -89,14 +114,22 @@ Route::prefix('admin')
             $stats = [
                 'total' => \App\Models\User::count(),
                 'active' => \App\Models\User::where('is_active', true)->count(),
-                'admins' => \App\Models\User::whereIn('role', ['admin', 'super_admin'])->count(),
+                'admins' => \App\Models\Admin::count(),
                 'new_today' => \App\Models\User::whereDate('created_at', today())->count(),
             ];
             return view('admin.users.index', compact('users', 'stats'));
         })->name('index');
         
         Route::get('/create', function () {
-            return view('admin.users.create');
+            $permissionGroups = \App\Models\PermissionGroup::active()->with('permissions')->get();
+            $permissions = \Spatie\Permission\Models\Permission::where('guard_name', 'web')
+                ->orderBy('name')
+                ->get()
+                ->groupBy(function ($permission) {
+                    $parts = explode('.', $permission->name);
+                    return $parts[0] ?? 'other';
+                });
+            return view('admin.users.create', compact('permissionGroups', 'permissions'));
         })->name('create');
         
         Route::post('/store', function () {
@@ -105,7 +138,6 @@ Route::prefix('admin')
                 'email' => 'required|string|email|max:255|unique:users',
                 'phone' => 'nullable|string|max:20',
                 'password' => 'required|string|min:8|confirmed',
-                'role' => 'required|in:user,admin,super_admin',
                 'is_active' => 'nullable|boolean',
                 'email_verified' => 'nullable|boolean',
                 'profile_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
@@ -116,8 +148,7 @@ Route::prefix('admin')
                 'name' => $validated['name'],
                 'email' => $validated['email'],
                 'phone' => $validated['phone'] ?? null,
-                'password' => $validated['password'], // Laravel will auto-hash it because of cast
-                'role' => $validated['role'],
+                'password' => $validated['password'],
                 'is_active' => request()->has('is_active') ? true : false,
                 'wallet_balance' => $validated['wallet_balance'] ?? 0,
             ]);
@@ -141,12 +172,48 @@ Route::prefix('admin')
         
         Route::get('/{user}', function ($userId) {
             $user = \App\Models\User::with(['orders', 'designs', 'locations', 'transactions'])->findOrFail($userId);
-            return view('admin.users.show', compact('user'));
+            
+            // الحصول على الصلاحيات والمجموعات
+            $userPermissions = $user->getAllPermissions();
+            $permissionGroups = \App\Models\PermissionGroup::active()->with('permissions')->get();
+            
+            // تحديد المجموعات التي يمتلك المستخدم جميع صلاحياتها
+            $userGroups = [];
+            foreach ($permissionGroups as $group) {
+                $groupPermissionIds = $group->permissions->pluck('id')->toArray();
+                $userPermissionIds = $userPermissions->pluck('id')->toArray();
+                if (!empty($groupPermissionIds) && count(array_intersect($groupPermissionIds, $userPermissionIds)) === count($groupPermissionIds)) {
+                    $userGroups[] = $group;
+                }
+            }
+            
+            return view('admin.users.show', compact('user', 'userPermissions', 'userGroups'));
         })->name('show');
         
         Route::get('/{user}/edit', function ($userId) {
             $user = \App\Models\User::findOrFail($userId);
-            return view('admin.users.edit', compact('user'));
+            $permissionGroups = \App\Models\PermissionGroup::active()->with('permissions')->get();
+            $permissions = \Spatie\Permission\Models\Permission::where('guard_name', 'web')
+                ->orderBy('name')
+                ->get()
+                ->groupBy(function ($permission) {
+                    $parts = explode('.', $permission->name);
+                    return $parts[0] ?? 'other';
+                });
+            
+            // الحصول على الصلاحيات الحالية للمستخدم
+            $userPermissions = $user->getAllPermissions()->pluck('id')->toArray();
+            
+            // تحديد المجموعات التي يمتلك المستخدم جميع صلاحياتها
+            $userGroups = [];
+            foreach ($permissionGroups as $group) {
+                $groupPermissionIds = $group->permissions->pluck('id')->toArray();
+                if (!empty($groupPermissionIds) && count(array_intersect($groupPermissionIds, $userPermissions)) === count($groupPermissionIds)) {
+                    $userGroups[] = $group->id;
+                }
+            }
+            
+            return view('admin.users.edit', compact('user', 'permissionGroups', 'permissions', 'userPermissions', 'userGroups'));
         })->name('edit');
         
         Route::put('/{user}', function ($userId) {
@@ -157,7 +224,6 @@ Route::prefix('admin')
                 'email' => 'required|string|email|max:255|unique:users,email,' . $userId,
                 'phone' => 'nullable|string|max:20',
                 'password' => 'nullable|string|min:8|confirmed',
-                'role' => 'required|in:user,admin,super_admin',
                 'is_active' => 'nullable|boolean',
                 'email_verified' => 'nullable|boolean',
                 'profile_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
@@ -168,7 +234,6 @@ Route::prefix('admin')
             $user->name = $validated['name'];
             $user->email = $validated['email'];
             $user->phone = $validated['phone'] ?? null;
-            $user->role = $validated['role'];
             $user->is_active = request()->has('is_active') ? true : false;
             $user->wallet_balance = $validated['wallet_balance'] ?? $user->wallet_balance;
             
@@ -202,7 +267,7 @@ Route::prefix('admin')
         })->name('update');
         
         Route::get('/admins', function () {
-            return redirect()->route('admin.users.index', ['role' => 'admin']);
+            return redirect()->route('admin.admins.index');
         })->name('admins');
         
         // AJAX: Toggle User Status
@@ -286,6 +351,22 @@ Route::prefix('admin')
         })->name('destroy');
     });
     
+    // إدارة المشرفين (Admins)
+    // إدارة الصلاحيات لجميع المشرفين (يجب أن يكون قبل resource)
+    Route::get('admins/permissions/manage', [\App\Http\Controllers\Admin\AdminController::class, 'managePermissions'])->name('admins.permissions');
+    
+    Route::resource('admins', \App\Http\Controllers\Admin\AdminController::class);
+    
+    // إدارة مجموعات الصلاحيات (فقط للسوبر أدمن)
+    Route::prefix('permission-groups')->name('permission-groups.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\PermissionGroupController::class, 'index'])->name('index');
+        Route::get('/create', [\App\Http\Controllers\Admin\PermissionGroupController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\Admin\PermissionGroupController::class, 'store'])->name('store');
+        Route::get('/{permissionGroup}/edit', [\App\Http\Controllers\Admin\PermissionGroupController::class, 'edit'])->name('edit');
+        Route::put('/{permissionGroup}', [\App\Http\Controllers\Admin\PermissionGroupController::class, 'update'])->name('update');
+        Route::delete('/{permissionGroup}', [\App\Http\Controllers\Admin\PermissionGroupController::class, 'destroy'])->name('destroy');
+    });
+    
     // إدارة الكوبونات
     Route::prefix('coupons')->name('coupons.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\CouponController::class, 'index'])->name('index');
@@ -301,30 +382,47 @@ Route::prefix('admin')
     // إدارة التقييمات
     Route::prefix('reviews')->name('reviews.')->group(function () {
         Route::get('/', function () {
-            $reviews = collect([]); // Add your Review model when ready
+            $query = \App\Models\Review::with(['user', 'order']);
+            
+            // البحث
+            if (request('search')) {
+                $search = request('search');
+                $query->where(function($q) use ($search) {
+                    $q->whereHas('user', function($userQuery) use ($search) {
+                        $userQuery->where('name', 'like', "%{$search}%")
+                                  ->orWhere('email', 'like', "%{$search}%");
+                    })
+                    ->orWhere('comment', 'like', "%{$search}%");
+                });
+            }
+            
+            // فلترة حسب التقييم
+            if (request('rating')) {
+                $query->where('rating', request('rating'));
+            }
+            
+            $reviews = $query->latest()->paginate(15)->withQueryString();
+            
+            // حساب الإحصائيات
             $stats = [
-                'total' => 0,
+                'total' => \App\Models\Review::count(),
                 'approved' => 0,
                 'pending' => 0,
                 'rejected' => 0,
-                'average' => 0,
+                'average' => \App\Models\Review::avg('rating') ?? 0,
             ];
+            
             return view('admin.reviews.index', compact('reviews', 'stats'));
         })->name('index');
     });
     
     // إدارة الإشعارات
     Route::prefix('notifications')->name('notifications.')->group(function () {
-        Route::get('/', function () {
-            $notifications = collect([]); // Add your Notification model when ready
-            $stats = [
-                'total' => 0,
-                'read' => 0,
-                'unread' => 0,
-                'today' => 0,
-            ];
-            return view('admin.notifications.index', compact('notifications', 'stats'));
-        })->name('index');
+        Route::get('/', [\App\Http\Controllers\Admin\NotificationController::class, 'index'])->name('index');
+        Route::post('/send', [\App\Http\Controllers\Admin\NotificationController::class, 'send'])->name('send');
+        Route::post('/test', [\App\Http\Controllers\Admin\NotificationController::class, 'sendTest'])->name('test');
+        Route::put('/{id}/mark-read', [\App\Http\Controllers\Admin\NotificationController::class, 'markAsRead'])->name('mark-read');
+        Route::delete('/{id}', [\App\Http\Controllers\Admin\NotificationController::class, 'destroy'])->name('destroy');
     });
     
     // الإعدادات والتقارير
@@ -342,7 +440,7 @@ Route::prefix('admin')
 // ═══════════════════════════════════════════════════════
 
 Route::prefix('dashboard')
-     ->middleware(['auth', 'admin']) // تحتاج تسجيل دخول + صلاحية مشرف
+     ->middleware(['admin']) // تحتاج تسجيل دخول + صلاحية مشرف
      ->name('dashboard.')
      ->group(function () {
     
@@ -607,29 +705,22 @@ Route::prefix('dashboard')
             return redirect()->route('dashboard.orders.index', ['status' => 'completed']);
         })->name('completed');
         
-        Route::get('/{order}', [\App\Http\Controllers\Dashboard\OrderController::class, 'show'])->name('show');
-        
-        // AJAX: Update Order Status
-        Route::put('/{order}/status', [\App\Http\Controllers\Dashboard\OrderController::class, 'updateStatus'])->name('update-status');
-        
-        // AJAX: Cancel Order
-        Route::post('/{order}/cancel', [\App\Http\Controllers\Dashboard\OrderController::class, 'cancel'])->name('cancel');
-        
-        // Stats
+        // Stats (يجب أن يكون قبل {order} routes)
         Route::get('/stats/overview', [\App\Http\Controllers\Dashboard\OrderController::class, 'stats'])->name('stats');
         
-        // PDF: Invoice
-        Route::get('/{order}/invoice/pdf', function ($orderId) {
-            $order = \App\Models\Order::with(['user', 'items', 'location'])->findOrFail($orderId);
-            
-            // TODO: استخدام مكتبة PDF لإنشاء الفاتورة
-            // مثلاً: dompdf أو Laravel Snappy
-            
-            return response()->json([
-                'message' => 'ميزة طباعة الفاتورة قيد التطوير',
-                'order' => $order
-            ]);
-        })->name('invoice-pdf');
+        // AJAX: Update Order Status (يجب أن يكون قبل {order} route)
+        Route::put('/{order}/status', [\App\Http\Controllers\Dashboard\OrderController::class, 'updateStatus'])->name('update-status');
+        
+        // AJAX: Cancel Order (يجب أن يكون قبل {order} route)
+        Route::post('/{order}/cancel', [\App\Http\Controllers\Dashboard\OrderController::class, 'cancel'])->name('cancel');
+        
+        // Invoice Routes (يجب أن يكون قبل {order} route)
+        Route::get('/{order}/invoice', [\App\Http\Controllers\InvoiceController::class, 'show'])->name('invoice.show');
+        Route::get('/{order}/invoice/download', [\App\Http\Controllers\InvoiceController::class, 'download'])->name('invoice.download');
+        Route::get('/{order}/invoice/view', [\App\Http\Controllers\InvoiceController::class, 'view'])->name('invoice.view');
+        
+        // Show Order (يجب أن يكون في النهاية)
+        Route::get('/{order}', [\App\Http\Controllers\Dashboard\OrderController::class, 'show'])->name('show');
         
         // Export Orders
         Route::get('/export', function () {

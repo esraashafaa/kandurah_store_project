@@ -22,7 +22,13 @@ class UpdateOrderStatusRequest extends FormRequest
                 Rule::in(OrderStatus::values()),
                 function ($attribute, $value, $fail) {
                     $order = $this->route('order');
-                    $newStatus = OrderStatus::from($value);
+                    
+                    // التحقق من النوع قبل التحويل
+                    if ($value instanceof OrderStatus) {
+                        $newStatus = $value;
+                    } else {
+                        $newStatus = OrderStatus::from($value);
+                    }
                     
                     if (!$order->status->canTransitionTo($newStatus)) {
                         $fail(__('لا يمكن الانتقال من :current_status إلى :new_status', [
