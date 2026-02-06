@@ -2,13 +2,13 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\AuthController;
-use App\Http\Controllers\Api\CartController;
+use App\Http\Controllers\API\CartController;
 use App\Http\Controllers\API\SizeController;
-use App\Http\Controllers\Api\OrderController;
+use App\Http\Controllers\API\OrderController;
 use App\Http\Controllers\API\DesignController;
 use App\Http\Controllers\API\LocationController;
 use App\Http\Controllers\API\DesignOptionController;
-use App\Http\Controllers\Api\Admin\AdminOrderController;
+use App\Http\Controllers\API\Admin\AdminOrderController;
 use App\Http\Controllers\API\WalletController;
 use App\Http\Controllers\API\PaymentController;
 use App\Http\Controllers\API\CouponController;

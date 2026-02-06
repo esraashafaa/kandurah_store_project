@@ -765,6 +765,14 @@ Route::middleware(['auth'])->group(function () {
      
      Route::get('/stripe/cancel', [StripeController::class, 'cancel'])
          ->name('stripe.cancel');
+
+     // دفع طلب معين (عودة من Stripe بعد الدفع)
+     Route::get('/stripe/order/{order}/pay', [StripeController::class, 'payOrder'])
+         ->name('stripe.order.pay');
+     Route::get('/stripe/order/{order}/success', [StripeController::class, 'orderSuccess'])
+         ->name('stripe.order.success');
+     Route::get('/stripe/order/{order}/cancel', [StripeController::class, 'orderCancel'])
+         ->name('stripe.order.cancel');
  });
  
  // Webhook Route - بدون CSRF Token
