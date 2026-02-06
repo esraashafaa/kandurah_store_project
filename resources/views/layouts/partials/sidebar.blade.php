@@ -18,10 +18,10 @@
     <!-- Main Sidebar -->
     <aside 
         :class="(sidebarOpen || !isMobile) ? 'translate-x-0' : ('{{ app()->getLocale() }}' === 'ar' ? 'translate-x-full' : '-translate-x-full')"
-        class="w-64 bg-white shadow-2xl lg:shadow-none transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:transform-none flex-shrink-0 h-screen overflow-hidden {{ app()->getLocale() === 'ar' ? 'border-l' : 'border-r' }} border-gray-200"
+        class="w-64 bg-white shadow-2xl lg:shadow-none transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:transform-none flex-shrink-0 h-screen flex flex-col {{ app()->getLocale() === 'ar' ? 'border-l' : 'border-r' }} border-gray-200"
     >
     <!-- Logo -->
-    <div class="flex items-center justify-center h-20 bg-gradient-to-{{ app()->getLocale() === 'ar' ? 'l' : 'r' }} from-indigo-600 via-purple-600 to-pink-600 relative overflow-hidden">
+    <div class="flex-shrink-0 flex items-center justify-center h-20 bg-gradient-to-{{ app()->getLocale() === 'ar' ? 'l' : 'r' }} from-indigo-600 via-purple-600 to-pink-600 relative overflow-hidden">
         <div class="absolute inset-0 bg-gradient-to-{{ app()->getLocale() === 'ar' ? 'l' : 'r' }} from-indigo-600 via-purple-600 to-pink-600 opacity-50 animate-pulse"></div>
         <h1 class="text-2xl font-bold text-white flex items-center gap-3 relative z-10">
             <div class="w-12 h-12 bg-white bg-opacity-20 rounded-xl flex items-center justify-center backdrop-blur-sm">
@@ -32,7 +32,7 @@
     </div>
 
     <!-- Navigation -->
-    <nav class="mt-6 px-2 overflow-hidden pb-6">
+    <nav class="flex-1 min-h-0 mt-6 px-2 pb-6 overflow-y-auto">
         @php
             // الحصول على Admin من guard admin أو guard الافتراضي
             $admin = auth()->guard('admin')->user() ?? (auth()->user() instanceof \App\Models\Admin ? auth()->user() : null);
@@ -113,15 +113,7 @@
         @if($isSuperAdmin)
         <a href="{{ route('admin.permission-groups.index') }}" class="sidebar-link {{ request()->routeIs('admin.permission-groups.*') ? 'active' : '' }}">
             <i class="fas fa-layer-group"></i>
-            <span>إدارة مجموعات الصلاحيات</span>
-        </a>
-        @endif
-
-        <!-- الإعدادات -->
-        @if($isSuperAdmin)
-        <a href="{{ route('admin.settings') }}" class="sidebar-link {{ request()->routeIs('admin.settings') ? 'active' : '' }}">
-            <i class="fas fa-cog"></i>
-            <span>{{ __('sidebar.settings') }}</span>
+            <span>{{ __('admin.permission_groups.title') }}</span>
         </a>
         @endif
 

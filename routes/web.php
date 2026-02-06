@@ -12,7 +12,14 @@ use App\Http\Controllers\LanguageController;
 use App\Enums\OrderStatus;
 
 Route::get('/', function () {
-    return view('welcome');
+    if (auth()->check() || auth()->guard('admin')->check()) {
+        // Admin → dashboard, regular user → my-designs
+        if (auth()->guard('admin')->check() || auth()->user() instanceof \App\Models\Admin) {
+            return redirect()->route('dashboard');
+        }
+        return redirect()->route('my-designs.index');
+    }
+    return redirect()->route('login');
 });
 
 // خدمة صور التصاميم من التخزين (يعمل حتى لو الرابط الرمزي لا يعمل على Windows)

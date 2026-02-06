@@ -71,13 +71,13 @@
                         </div>
                     </div>
                     <div class="flex gap-2 mr-3">
-                        <a href="{{ route('admin.permission-groups.edit', $group) }}" class="text-blue-600 hover:text-blue-800" title="تعديل">
+                        <a href="{{ route('admin.permission-groups.edit', $group) }}" class="text-blue-600 hover:text-blue-800" title="{{ __('admin.permission_groups.edit') }}">
                             <i class="fas fa-edit"></i>
                         </a>
-                        <form action="{{ route('admin.permission-groups.destroy', $group) }}" method="POST" class="inline" onsubmit="return confirm('هل أنت متأكد من حذف هذه المجموعة؟')">
+                        <form action="{{ route('admin.permission-groups.destroy', $group) }}" method="POST" class="inline" onsubmit="return confirm('{{ __('admin.permission_groups.delete_confirm') }}')">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="text-red-600 hover:text-red-800" title="حذف">
+                            <button type="submit" class="text-red-600 hover:text-red-800" title="{{ __('admin.permission_groups.delete') }}">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </form>
@@ -86,7 +86,7 @@
                 
                 @if($group->permissions->count() > 0)
                 <div class="mt-3 pt-3 border-t border-gray-200">
-                    <p class="text-xs font-medium text-gray-700 mb-2">الصلاحيات:</p>
+                    <p class="text-xs font-medium text-gray-700 mb-2">{{ __('admin.admins.permissions') }}:</p>
                     <div class="flex flex-wrap gap-2">
                         @foreach($group->permissions->take(5) as $permission)
                         <span class="px-2 py-1 bg-indigo-50 text-indigo-700 text-xs rounded">
@@ -95,7 +95,7 @@
                         @endforeach
                         @if($group->permissions->count() > 5)
                         <span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">
-                            +{{ $group->permissions->count() - 5 }} أكثر
+                            +{{ $group->permissions->count() - 5 }} {{ __('admin.permission_groups.more') }}
                         </span>
                         @endif
                     </div>
@@ -126,7 +126,7 @@
             <div class="border border-gray-200 rounded-lg p-4">
                 <div class="flex items-center justify-between mb-3">
                     <h3 class="text-sm font-semibold text-gray-800 capitalize">{{ $category }}</h3>
-                    <span class="text-xs text-gray-500">{{ $categoryPermissions->count() }} صلاحية</span>
+                    <span class="text-xs text-gray-500">{{ $categoryPermissions->count() }} {{ __('admin.admins.permissions_count') }}</span>
                 </div>
                 <div class="space-y-2">
                     @foreach($categoryPermissions as $permission)

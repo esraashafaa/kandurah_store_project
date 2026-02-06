@@ -2,6 +2,7 @@
 
 return [
     'logout' => 'Logout',
+    'profile' => 'Profile',
     'errors_occurred' => 'The following errors occurred:',
     'back' => 'Back',
     'save' => 'Save',

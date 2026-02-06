@@ -125,14 +125,14 @@
                                     @if(Route::has('profile.edit'))
                                     <a href="{{ route('profile.edit') }}" class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 {{ app()->getLocale() === 'ar' ? 'flex-row-reverse' : '' }}">
                                         <i class="fas fa-user w-4 text-gray-400"></i>
-                                        <span>{{ __('profile.edit_profile') ?? 'الملف الشخصي' }}</span>
+                                        <span>{{ __('common.profile') }}</span>
                                     </a>
                                     @endif
                                     <form method="POST" action="{{ route('logout') }}" class="block">
                                         @csrf
                                         <button type="submit" class="flex w-full items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 {{ app()->getLocale() === 'ar' ? 'flex-row-reverse' : '' }}">
                                             <i class="fas fa-sign-out-alt w-4"></i>
-                                            <span>{{ __('auth.logout') ?? 'تسجيل الخروج' }}</span>
+                                            <span>{{ __('common.logout') }}</span>
                                         </button>
                                     </form>
                                 </div>

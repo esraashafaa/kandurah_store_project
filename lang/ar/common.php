@@ -2,6 +2,7 @@
 
 return [
     'logout' => 'تسجيل الخروج',
+    'profile' => 'الملف الشخصي',
     'errors_occurred' => 'حدثت الأخطاء التالية:',
     'back' => 'العودة',
     'save' => 'حفظ',
@@ -50,6 +51,7 @@ return [
     'price_currency' => 'السعر (ر.س)',
     'confirm_delete' => 'هل أنت متأكد من الحذف؟',
     'confirm_delete_item' => 'هل أنت متأكد من حذف هذا العنصر؟ لا يمكن التراجع عن هذا الإجراء.',
+    'all_roles' => 'جميع الأدوار',
     'delete_success' => 'تم الحذف بنجاح',
     'delete_error' => 'حدث خطأ أثناء الحذف',
     'print' => 'طباعة',

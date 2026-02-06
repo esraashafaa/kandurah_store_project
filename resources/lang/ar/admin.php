@@ -230,6 +230,7 @@ return [
         'edit_permission_groups' => 'تعديل مجموعات الصلاحيات',
         'active_account' => 'حساب نشط',
         'no_permission_groups_available' => 'لا توجد مجموعات صلاحيات متاحة',
+        'no_permissions_specified' => 'لا توجد صلاحيات محددة',
     ],
     'permission_groups' => [
         'title' => 'إدارة مجموعات الصلاحيات',

@@ -230,6 +230,7 @@ return [
         'edit_permission_groups' => 'Edit Permission Groups',
         'active_account' => 'Active Account',
         'no_permission_groups_available' => 'No permission groups available',
+        'no_permissions_specified' => 'No permissions specified',
     ],
     'permission_groups' => [
         'title' => 'Permission Groups Management',

@@ -468,11 +468,11 @@
         @if(in_array($user->role->value, ['admin', 'super_admin']))
         <div class="bg-white rounded-xl shadow-sm p-6">
             <div class="flex items-center justify-between mb-4">
-                <h2 class="text-xl font-bold text-gray-800">الصلاحيات</h2>
+                <h2 class="text-xl font-bold text-gray-800">{{ __('admin.admins.permissions_management') }}</h2>
                 @if(auth()->user()->role === \App\Enums\RoleEnum::SUPER_ADMIN)
                 <a href="{{ route('admin.users.edit', $user) }}" class="text-sm text-indigo-600 hover:text-indigo-800">
                     <i class="fas fa-edit ml-1"></i>
-                    تعديل
+                    {{ __('admin.admins.edit') }}
                 </a>
                 @endif
             </div>
@@ -480,7 +480,7 @@
             <!-- Permission Groups -->
             @if(isset($userGroups) && count($userGroups) > 0)
             <div class="mb-6">
-                <h3 class="text-sm font-semibold text-gray-700 mb-3">مجموعات الصلاحيات</h3>
+                <h3 class="text-sm font-semibold text-gray-700 mb-3">{{ __('admin.admins.permission_groups_label') }}</h3>
                 <div class="flex flex-wrap gap-2">
                     @foreach($userGroups as $group)
                     <span class="inline-flex items-center gap-2 px-3 py-1.5 bg-indigo-100 text-indigo-700 rounded-lg text-sm font-medium">
@@ -496,7 +496,7 @@
             <!-- Individual Permissions -->
             @if(isset($userPermissions) && $userPermissions->count() > 0)
             <div>
-                <h3 class="text-sm font-semibold text-gray-700 mb-3">الصلاحيات الفردية ({{ $userPermissions->count() }})</h3>
+                <h3 class="text-sm font-semibold text-gray-700 mb-3">{{ __('admin.admins.individual_permissions_label') }} ({{ $userPermissions->count() }})</h3>
                 <div class="max-h-64 overflow-y-auto space-y-2">
                     @foreach($userPermissions->groupBy(function($permission) {
                         $parts = explode('.', $permission->name);
@@ -516,7 +516,7 @@
                 </div>
             </div>
             @else
-            <p class="text-sm text-gray-500 text-center py-4">لا توجد صلاحيات محددة</p>
+            <p class="text-sm text-gray-500 text-center py-4">{{ __('admin.admins.no_permissions_specified') }}</p>
             @endif
         </div>
         @endif
